@@ -26,8 +26,9 @@ Route::get('/', function () {
 | This route inspects the user's role and forwards to the correct dashboard.
 |--------------------------------------------------------------------------
 */
-Route::get('/dashboard', function () {
-    $user = auth()->user();
+Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
+    /** @var \App\Models\User $user */
+    $user = $request->user();
 
     if ($user->hasRole('Super Admin')) {
         return redirect()->route('admin.dashboard');
