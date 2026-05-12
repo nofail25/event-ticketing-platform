@@ -9,15 +9,15 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\TicketCategoryController;
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
 | Public Routes
 |--------------------------------------------------------------------------
 */
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/events/{event}', [HomeController::class, 'show'])->name('events.show');
 
 /*
 |--------------------------------------------------------------------------
