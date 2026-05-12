@@ -17,6 +17,7 @@ class Event extends Model
         'start_time',
         'end_time',
         'status',
+        'banner_image',
     ];
 
     protected function casts(): array

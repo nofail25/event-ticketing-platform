@@ -7,6 +7,9 @@ use App\Http\Controllers\Dashboard\CustomerDashboardController;
 use App\Http\Controllers\Dashboard\ScannerDashboardController;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\TicketCategoryController;
+
 /*
 |--------------------------------------------------------------------------
 | Public Routes
@@ -59,6 +62,8 @@ Route::middleware(['auth', 'verified', 'role:Event Organizer'])
     ->name('organizer.')
     ->group(function () {
         Route::get('/dashboard', [OrganizerDashboardController::class, 'index'])->name('dashboard');
+        Route::resource('events', EventController::class);
+        Route::resource('events.ticket-categories', TicketCategoryController::class)->except(['index', 'show']);
     });
 
 /*
