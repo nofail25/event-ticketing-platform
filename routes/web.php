@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\TicketCategoryController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\CheckoutController;
 
 /*
 |--------------------------------------------------------------------------
@@ -77,6 +78,17 @@ Route::middleware(['auth', 'verified', 'role:Customer'])
     ->name('customer.')
     ->group(function () {
         Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
+    });
+
+/*
+|--------------------------------------------------------------------------
+| Checkout Routes (Protected - Customer Role)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified', 'role:Customer'])
+    ->group(function () {
+        Route::get('/checkout/{ticketCategory}', [CheckoutController::class, 'create'])->name('checkout.create');
+        Route::post('/checkout/process', [CheckoutController::class, 'store'])->name('checkout.store');
     });
 
 /*

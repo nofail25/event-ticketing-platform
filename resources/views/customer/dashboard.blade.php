@@ -77,6 +77,99 @@
                 @endforelse
             </div>
 
+            {{-- My E-Tickets Section --}}
+            <div>
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900">🎟️ My E-Tickets</h2>
+                    <p class="text-gray-600 text-sm mt-1">Your digital tickets for upcoming events</p>
+                </div>
+
+                @php
+                    $allTickets = [];
+                    foreach($recentOrders as $order) {
+                        foreach($order->ticketDetails as $ticket) {
+                            $allTickets[] = [
+                                'ticket' => $ticket,
+                                'order' => $order,
+                                'event' => $ticket->ticketCategory->event,
+                                'category' => $ticket->ticketCategory,
+                            ];
+                        }
+                    }
+                @endphp
+
+                @if(count($allTickets) > 0)
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        @foreach($allTickets as $item)
+                            @php
+                                $event = $item['event'];
+                                $ticket = $item['ticket'];
+                                $category = $item['category'];
+                            @endphp
+                            <div class="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-lg p-6 text-white relative overflow-hidden">
+                                <!-- Background decoration -->
+                                <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full"></div>
+                                <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-white/5 rounded-full"></div>
+
+                                <div class="relative z-10">
+                                    <!-- Ticket Header -->
+                                    <div class="mb-4 pb-4 border-b border-white/20">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <span class="text-xs font-semibold uppercase tracking-widest text-blue-100">E-TICKET</span>
+                                            @if($ticket->is_scanned)
+                                                <span class="text-xs font-bold px-2 py-1 rounded-full bg-green-400 text-green-900">✓ Scanned</span>
+                                            @else
+                                                <span class="text-xs font-bold px-2 py-1 rounded-full bg-white/20">Not Used</span>
+                                            @endif
+                                        </div>
+                                        <h3 class="text-2xl font-bold">{{ $event->title }}</h3>
+                                    </div>
+
+                                    <!-- Event Details -->
+                                    <div class="space-y-2 mb-6 text-sm text-blue-100">
+                                        <div>
+                                            <p class="text-xs opacity-75">Event Date</p>
+                                            <p class="font-semibold text-white">{{ $event->start_time->format('F d, Y • h:i A') }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs opacity-75">Location</p>
+                                            <p class="font-semibold text-white">{{ $event->location }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs opacity-75">Ticket Type</p>
+                                            <p class="font-semibold text-white">{{ $category->name }}</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Barcode Section -->
+                                    <div class="bg-white/10 rounded-lg p-4 mb-4 border border-white/20">
+                                        <p class="text-xs font-semibold uppercase tracking-widest text-blue-100 mb-2">Barcode</p>
+                                        <p class="font-mono text-lg font-bold text-white break-all">{{ $ticket->barcode_string }}</p>
+                                    </div>
+
+                                    <!-- Order Info -->
+                                    <div class="text-xs text-blue-100 border-t border-white/20 pt-3">
+                                        <p class="font-semibold text-white">Invoice: {{ $item['order']->invoice_number }}</p>
+                                        <p>Purchased: {{ $item['order']->created_at->format('M d, Y') }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl shadow-sm p-8 text-center">
+                        <svg class="w-16 h-16 text-blue-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+                        </svg>
+                        <h3 class="text-xl font-semibold text-blue-900 mb-2">No E-Tickets Yet</h3>
+                        <p class="text-blue-700 mb-4">You haven't purchased any tickets yet. Start exploring events!</p>
+                        <a href="{{ route('home') }}" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+                            Browse Events
+                        </a>
+                    </div>
+                @endif
+            </div>
+
             {{-- Role Badge --}}
             <div class="bg-white border border-gray-100 rounded-xl shadow-sm p-6 flex items-center justify-between">
                 <div>

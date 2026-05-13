@@ -158,7 +158,7 @@
                                         @if($available > 0)
                                             @auth
                                                 <a
-                                                    href="/checkout/{{ $category->id }}"
+                                                    href="{{ route('checkout.create', $category) }}"
                                                     class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold text-center hover:bg-blue-700 transition block"
                                                 >
                                                     Buy Ticket
