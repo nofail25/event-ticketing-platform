@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreEventRequest;
+use App\Http\Requests\UpdateEventRequest;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -28,17 +30,9 @@ class EventController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreEventRequest $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'location' => 'required|string|max:255',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after_or_equal:start_time',
-            'status' => 'required|in:Draft,Published,Cancelled',
-            'banner_image' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:2048',
-        ]);
+        $validated = $request->validated();
 
         if ($request->hasFile('banner_image')) {
             $validated['banner_image'] = $request->file('banner_image')->store('banners', 'public');
@@ -80,21 +74,13 @@ class EventController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Event $event)
+    public function update(UpdateEventRequest $request, Event $event)
     {
         if ($event->organizer_id !== auth()->id()) {
             abort(403);
         }
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'location' => 'required|string|max:255',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after_or_equal:start_time',
-            'status' => 'required|in:Draft,Published,Cancelled',
-            'banner_image' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:2048',
-        ]);
+        $validated = $request->validated();
 
         if ($request->hasFile('banner_image')) {
             if ($event->banner_image) {

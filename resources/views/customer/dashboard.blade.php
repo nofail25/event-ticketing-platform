@@ -37,7 +37,7 @@
                 @endphp
 
                 @foreach($cards as $card)
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center gap-4 hover:shadow-md transition-shadow duration-200">
+                <x-card class="p-6 flex items-center gap-4 hover:shadow-md transition-shadow duration-200">
                     <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br {{ $card['from'] }} {{ $card['to'] }} flex items-center justify-center shadow-sm">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="{{ $card['icon'] }}"/>
@@ -47,12 +47,12 @@
                         <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">{{ $card['label'] }}</p>
                         <p class="text-3xl font-bold text-gray-800 mt-0.5">{{ $card['value'] }}</p>
                     </div>
-                </div>
+                </x-card>
                 @endforeach
             </div>
 
             {{-- Recent Orders --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <x-card>
                 <div class="px-6 py-4 border-b border-gray-100">
                     <h3 class="font-semibold text-gray-800">Recent Orders</h3>
                 </div>
@@ -63,19 +63,24 @@
                         <p class="text-xs text-gray-500 mt-0.5">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</p>
                     </div>
                     @php
-                        $badge = match($order->payment_status) {
-                            'paid'    => 'bg-emerald-100 text-emerald-700',
-                            'pending' => 'bg-amber-100 text-amber-700',
-                            'failed'  => 'bg-red-100 text-red-700',
-                            default   => 'bg-gray-100 text-gray-600'
+                        $badgeColor = match($order->payment_status) {
+                            'paid'    => 'green',
+                            'pending' => 'yellow',
+                            'failed'  => 'red',
+                            default   => 'gray'
                         };
                     @endphp
-                    <span class="text-xs font-semibold px-2.5 py-1 rounded-full {{ $badge }} capitalize">{{ $order->payment_status }}</span>
+                    <x-badge :color="$badgeColor" class="capitalize">{{ $order->payment_status }}</x-badge>
                 </div>
                 @empty
-                <div class="px-6 py-8 text-center text-gray-400 text-sm">No orders yet. Explore events and get your tickets!</div>
+                <div class="px-6 py-12 text-center">
+                    <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    <p class="text-gray-500 text-sm">No orders found.</p>
+                </div>
                 @endforelse
-            </div>
+            </x-card>
 
             {{-- My E-Tickets Section --}}
             <div>
@@ -157,30 +162,34 @@
                         @endforeach
                     </div>
                 @else
-                    <div class="bg-blue-50 border border-blue-200 rounded-xl shadow-sm p-8 text-center">
-                        <svg class="w-16 h-16 text-blue-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
-                        </svg>
-                        <h3 class="text-xl font-semibold text-blue-900 mb-2">No E-Tickets Yet</h3>
-                        <p class="text-blue-700 mb-4">You haven't purchased any tickets yet. Start exploring events!</p>
-                        <a href="{{ route('home') }}" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
-                            Browse Events
-                        </a>
-                    </div>
+                    <x-card class="p-12 text-center bg-gray-50/50">
+                        <div class="flex flex-col items-center justify-center">
+                            <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-5">
+                                <svg class="w-10 h-10 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">No E-Tickets Yet</h3>
+                            <p class="text-gray-500 mb-6 max-w-md">You haven't purchased any tickets yet. Explore upcoming events and get your passes today!</p>
+                            <x-primary-button href="{{ route('home') }}">
+                                Browse Events
+                            </x-primary-button>
+                        </div>
+                    </x-card>
                 @endif
             </div>
 
             {{-- Role Badge --}}
-            <div class="bg-white border border-gray-100 rounded-xl shadow-sm p-6 flex items-center justify-between">
+            <x-card class="p-6 flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-500">Logged in as</p>
                     <p class="font-semibold text-gray-800 mt-0.5">{{ Auth::user()->email }}</p>
                 </div>
-                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-200">
+                <x-badge color="blue" class="border border-blue-200 gap-1.5 px-3 py-1.5">
                     <span class="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span>
                     Customer
-                </span>
-            </div>
+                </x-badge>
+            </x-card>
 
         </div>
     </div>
