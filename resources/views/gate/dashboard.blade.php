@@ -7,87 +7,139 @@
                 </svg>
             </div>
             <div>
-                <h2 class="font-bold text-xl text-gray-800 leading-tight">Gate Scanner Dashboard</h2>
-                <p class="text-xs text-gray-500 font-medium">Scan and validate event entry tickets</p>
+                <h2 class="font-bold text-xl text-gray-800 leading-tight">Ticket Scanner</h2>
+                <p class="text-xs text-gray-500 font-medium">Gate entry validation</p>
             </div>
         </div>
     </x-slot>
 
-    <div class="py-10">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
-
-            {{-- Welcome Banner --}}
-            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-orange-500 via-red-500 to-rose-600 p-8 text-white shadow-lg">
-                <div class="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-xl"></div>
-                <div class="relative z-10">
-                    <p class="text-orange-100 text-sm font-medium mb-1">Ready to scan,</p>
-                    <h1 class="text-3xl font-bold mb-2">{{ Auth::user()->name }} 🔍</h1>
-                    <p class="text-red-100">You are authorized to validate entry tickets at the gate.</p>
-                </div>
+    <div class="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl mx-auto">
+            
+            {{-- Welcome Header --}}
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Hello, {{ Auth::user()->name }}</h1>
+                <p class="text-gray-600">Scan or enter a ticket barcode to validate entry</p>
             </div>
 
-            {{-- Scan Stats --}}
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center gap-4 hover:shadow-md transition-shadow">
-                    <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-sm">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Scanned</p>
-                        <p class="text-3xl font-bold text-gray-800 mt-0.5">{{ $stats['total_scanned'] }}</p>
-                    </div>
+            {{-- Scanner Form Container --}}
+            <form action="{{ route('gate.scan') }}" method="POST" class="bg-white rounded-2xl shadow-lg p-8 space-y-6">
+                @csrf
+
+                {{-- Input Section --}}
+                <div class="space-y-3">
+                    <label for="barcode_string" class="block text-lg font-semibold text-gray-800">
+                        Barcode / Ticket ID
+                    </label>
+                    <input
+                        type="text"
+                        id="barcode_string"
+                        name="barcode_string"
+                        placeholder="Paste barcode or enter ticket ID..."
+                        autofocus
+                        class="w-full px-6 py-4 text-xl border-2 border-gray-300 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all placeholder-gray-400"
+                        autocomplete="off"
+                    >
+                    @error('barcode_string')
+                        <p class="text-sm text-red-600 font-medium">{{ $message }}</p>
+                    @enderror
                 </div>
 
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center gap-4 hover:shadow-md transition-shadow">
-                    <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center shadow-sm">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Tickets</p>
-                        <p class="text-3xl font-bold text-gray-800 mt-0.5">{{ $stats['total_tickets'] }}</p>
-                    </div>
-                </div>
+                {{-- Submit Button --}}
+                <button
+                    type="submit"
+                    class="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-md hover:shadow-lg text-xl"
+                >
+                    ✓ Verify Ticket
+                </button>
 
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center gap-4 hover:shadow-md transition-shadow">
-                    <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-sm">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Scan Rate</p>
-                        <p class="text-3xl font-bold text-gray-800 mt-0.5">
-                            {{ $stats['total_tickets'] > 0 ? number_format(($stats['total_scanned'] / $stats['total_tickets']) * 100, 1) : '0' }}%
-                        </p>
-                    </div>
-                </div>
-            </div>
+                {{-- Clear Button --}}
+                <button
+                    type="reset"
+                    class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-xl transition-all text-lg"
+                >
+                    Clear
+                </button>
+            </form>
 
-            {{-- Scanner Ready State --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-10 text-center">
-                <div class="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center mb-4">
-                    <svg class="w-10 h-10 text-orange-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
-                    </svg>
+            {{-- Result Display - VALID (Green) --}}
+            @if(session('scan_success'))
+                <div class="mt-8 animate-pulse">
+                    <div class="bg-gradient-to-r from-emerald-50 to-green-50 border-4 border-emerald-500 rounded-2xl p-8 shadow-xl">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0 w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg">
+                                <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h2 class="text-3xl font-bold text-emerald-700 mb-2">✓ VALID TICKET</h2>
+                                @if(session('scan_details'))
+                                    <div class="space-y-2 text-emerald-700">
+                                        <p class="text-lg font-semibold">Event: {{ session('scan_details')['event_name'] ?? 'N/A' }}</p>
+                                        <p class="text-lg font-semibold">Ticket Type: {{ session('scan_details')['category_name'] ?? 'N/A' }}</p>
+                                        <p class="text-lg font-semibold">Guest: {{ session('scan_details')['customer_name'] ?? 'N/A' }}</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <h3 class="font-semibold text-gray-800 text-lg mb-1">Barcode Scanner Ready</h3>
-                <p class="text-gray-500 text-sm">The QR/barcode scanning interface will be available here in the next phase.</p>
-            </div>
+            @endif
 
-            {{-- Role Badge --}}
-            <div class="bg-white border border-gray-100 rounded-xl shadow-sm p-6 flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-500">Logged in as</p>
-                    <p class="font-semibold text-gray-800 mt-0.5">{{ Auth::user()->email }}</p>
+            {{-- Result Display - ALREADY SCANNED (Yellow/Orange) --}}
+            @if(session('scan_warning'))
+                <div class="mt-8 animate-pulse">
+                    <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border-4 border-yellow-500 rounded-2xl p-8 shadow-xl">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0 w-16 h-16 rounded-full bg-yellow-500 flex items-center justify-center shadow-lg">
+                                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h2 class="text-3xl font-bold text-yellow-700 mb-2">⚠ ALREADY SCANNED</h2>
+                                <p class="text-lg text-yellow-700">This ticket has already been used for entry.</p>
+                                @if(session('scan_message'))
+                                    <p class="text-base text-yellow-600 mt-2 font-mono">{{ session('scan_message') }}</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-orange-100 text-orange-700 border border-orange-200">
-                    <span class="w-1.5 h-1.5 rounded-full bg-orange-500 inline-block"></span>
-                    Gate Scanner
-                </span>
+            @endif
+
+            {{-- Result Display - INVALID (Red) --}}
+            @if($errors->has('scan_result') || ($errors->any() && !session('scan_success') && !session('scan_warning')))
+                <div class="mt-8 animate-pulse">
+                    <div class="bg-gradient-to-r from-red-50 to-rose-50 border-4 border-red-600 rounded-2xl p-8 shadow-xl">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0 w-16 h-16 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
+                                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h2 class="text-3xl font-bold text-red-700 mb-2">✗ INVALID TICKET</h2>
+                                <p class="text-lg text-red-700">Ticket not found or invalid format.</p>
+                                @if($errors->first('scan_result'))
+                                    <p class="text-base text-red-600 mt-2">{{ $errors->first('scan_result') }}</p>
+                                @endif
+                                @if(session('scan_message'))
+                                    <p class="text-base text-red-600 mt-2">{{ session('scan_message') }}</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            {{-- User Info Footer --}}
+            <div class="mt-12 text-center">
+                <p class="text-gray-600 text-sm">
+                    Logged in as: <span class="font-semibold text-gray-800">{{ Auth::user()->email }}</span>
+                </p>
+                <p class="text-gray-500 text-xs mt-1">Gate Scanner Role</p>
             </div>
 
         </div>

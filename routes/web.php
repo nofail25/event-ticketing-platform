@@ -11,6 +11,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\TicketCategoryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ScannerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -101,6 +102,7 @@ Route::middleware(['auth', 'verified', 'role:Gate Scanner'])
     ->name('gate.')
     ->group(function () {
         Route::get('/dashboard', [ScannerDashboardController::class, 'index'])->name('dashboard');
+        Route::post('/scan', [ScannerController::class, 'verify'])->name('scan');
     });
 
 /*
