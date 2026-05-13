@@ -22,18 +22,30 @@
                 <p class="text-gray-600">Scan or enter a ticket barcode to validate entry</p>
             </div>
 
+            {{-- Live Camera Scanner Section --}}
+            <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 text-center">Live Camera Scanner</h3>
+                <div id="reader" class="w-full max-w-md mx-auto rounded-lg overflow-hidden border-2 border-gray-300"></div>
+            </div>
+
+            <div class="flex items-center mb-8">
+                <div class="flex-grow border-t border-gray-300"></div>
+                <span class="mx-4 text-gray-500 font-medium">OR enter manually</span>
+                <div class="flex-grow border-t border-gray-300"></div>
+            </div>
+
             {{-- Scanner Form Container --}}
-            <form action="{{ route('gate.scan') }}" method="POST" class="bg-white rounded-2xl shadow-lg p-8 space-y-6">
+            <form id="scanner_form" action="{{ route('gate.scan') }}" method="POST" class="bg-white rounded-2xl shadow-lg p-8 space-y-6">
                 @csrf
 
                 {{-- Input Section --}}
                 <div class="space-y-3">
-                    <label for="barcode_string" class="block text-lg font-semibold text-gray-800">
+                    <label for="barcode_input" class="block text-lg font-semibold text-gray-800">
                         Barcode / Ticket ID
                     </label>
                     <input
                         type="text"
-                        id="barcode_string"
+                        id="barcode_input"
                         name="barcode_string"
                         placeholder="Paste barcode or enter ticket ID..."
                         autofocus
@@ -144,4 +156,38 @@
 
         </div>
     </div>
+
+    {{-- HTML5 QR Code Library --}}
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader",
+                { fps: 10, qrbox: {width: 250, height: 250} },
+                false
+            );
+
+            let isScanned = false;
+
+            function onScanSuccess(decodedText, decodedResult) {
+                if (isScanned) return;
+                isScanned = true;
+
+                // Stop/pause scanner to prevent multiple rapid scans
+                try {
+                    html5QrcodeScanner.pause();
+                } catch (e) {
+                    html5QrcodeScanner.clear();
+                }
+
+                // Inject the decoded text into the barcode input
+                document.getElementById('barcode_input').value = decodedText;
+
+                // Automatically submit the form
+                document.getElementById('scanner_form').submit();
+            }
+
+            html5QrcodeScanner.render(onScanSuccess);
+        });
+    </script>
 </x-app-layout>
