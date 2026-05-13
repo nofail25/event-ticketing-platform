@@ -190,6 +190,40 @@
                             </div>
                         @endif
 
+                        @if($userEventTickets->isNotEmpty())
+                            <div class="mt-6 bg-indigo-50 border border-indigo-100 rounded-lg p-4">
+                                <h3 class="font-semibold text-gray-900 mb-3">Your Tickets</h3>
+                                <div class="space-y-4">
+                                    @foreach($userEventTickets as $ticket)
+                                        <div class="bg-white rounded-lg border border-indigo-100 p-4">
+                                            <div class="flex items-start justify-between gap-3 mb-3">
+                                                <div>
+                                                    <p class="text-sm font-semibold text-gray-900">{{ $ticket->ticketCategory->name }}</p>
+                                                    <p class="text-xs text-gray-500">{{ $ticket->order->invoice_number }}</p>
+                                                </div>
+                                                @if($ticket->is_scanned)
+                                                    <span class="text-xs font-semibold px-2 py-1 rounded-full bg-green-100 text-green-700">Scanned</span>
+                                                @else
+                                                    <span class="text-xs font-semibold px-2 py-1 rounded-full bg-indigo-100 text-indigo-700">Not Used</span>
+                                                @endif
+                                            </div>
+
+                                            <div class="flex flex-col items-center">
+                                                <div class="bg-white p-2 rounded-lg border border-gray-200 shadow-sm">
+                                                    <img
+                                                        src="{{ \App\Support\QrCode::svgDataUri($ticket->barcode_string, 160) }}"
+                                                        alt="QR code for ticket {{ $ticket->id }}"
+                                                        class="w-40 h-40"
+                                                    >
+                                                </div>
+                                                <p class="font-mono text-xs text-gray-600 break-all mt-3 text-center">{{ $ticket->barcode_string }}</p>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
                         <!-- Important Notice -->
                         <div class="mt-6 bg-gray-50 rounded-lg p-4 text-sm text-gray-600">
                             <p class="font-semibold text-gray-900 mb-2">ℹ Important</p>

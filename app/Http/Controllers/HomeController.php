@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Models\TicketDetail;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -42,6 +43,24 @@ class HomeController extends Controller
         // Eager load relationships
         $event->load(['organizer', 'ticketCategories']);
 
-        return view('events.public-show', ['event' => $event]);
+        $userEventTickets = collect();
+
+        if (auth()->check()) {
+            $userEventTickets = TicketDetail::query()
+                ->with(['order', 'ticketCategory'])
+                ->whereHas('order', function ($query) {
+                    $query->where('user_id', auth()->id());
+                })
+                ->whereHas('ticketCategory', function ($query) use ($event) {
+                    $query->where('event_id', $event->id);
+                })
+                ->latest()
+                ->get();
+        }
+
+        return view('events.public-show', [
+            'event' => $event,
+            'userEventTickets' => $userEventTickets,
+        ]);
     }
 }

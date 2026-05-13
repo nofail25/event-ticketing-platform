@@ -23,6 +23,9 @@
                     <p class="text-blue-100 text-sm font-medium mb-1">Hello,</p>
                     <h1 class="text-3xl font-bold mb-2">{{ Auth::user()->name }} 🎟️</h1>
                     <p class="text-indigo-100">Welcome to your ticket hub. Explore events and manage your orders.</p>
+                    <a href="{{ route('home') }}" class="mt-5 inline-flex items-center px-4 py-2 bg-white text-indigo-700 text-sm font-semibold rounded-lg shadow-sm hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600 transition">
+                        Browse More Events
+                    </a>
                 </div>
             </div>
 
@@ -146,10 +149,17 @@
                                         </div>
                                     </div>
 
-                                    <!-- Barcode Section -->
+                                    <!-- QR Code Section -->
                                     <div class="bg-white/10 rounded-lg p-4 mb-4 border border-white/20">
-                                        <p class="text-xs font-semibold uppercase tracking-widest text-blue-100 mb-2">Barcode</p>
-                                        <p class="font-mono text-lg font-bold text-white break-all">{{ $ticket->barcode_string }}</p>
+                                        <p class="text-xs font-semibold uppercase tracking-widest text-blue-100 mb-3">QR Code</p>
+                                        <div class="inline-flex bg-white p-2 rounded-lg shadow-sm">
+                                            <img
+                                                src="{{ \App\Support\QrCode::svgDataUri($ticket->barcode_string, 160) }}"
+                                                alt="QR code for ticket {{ $ticket->id }}"
+                                                class="w-40 h-40"
+                                            >
+                                        </div>
+                                        <p class="font-mono text-xs font-semibold text-white break-all mt-3">{{ $ticket->barcode_string }}</p>
                                     </div>
 
                                     <!-- Order Info -->
