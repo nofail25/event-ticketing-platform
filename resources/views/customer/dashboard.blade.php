@@ -17,15 +17,15 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
 
             {{-- Welcome Banner --}}
-            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 p-8 text-white shadow-lg">
-                <div class="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-xl"></div>
+            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-700 via-indigo-600 to-purple-700 p-8 md:p-10 text-white shadow-lg">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_32rem)]"></div>
                 <div class="relative z-10">
-                    <p class="text-blue-100 text-sm font-medium mb-1">Hello,</p>
-                    <h1 class="text-3xl font-bold mb-2">{{ Auth::user()->name }} 🎟️</h1>
-                    <p class="text-indigo-100">Welcome to your ticket hub. Explore events and manage your orders.</p>
-                    <a href="{{ route('home') }}" class="mt-5 inline-flex items-center px-4 py-2 bg-white text-indigo-700 text-sm font-semibold rounded-lg shadow-sm hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600 transition">
+                    <p class="text-indigo-100 text-sm font-medium mb-1">Hello, Customer</p>
+                    <h1 class="text-2xl md:text-3xl font-bold mb-2">{{ Auth::user()->name }}</h1>
+                    <p class="text-indigo-100 text-base md:text-lg">Welcome to your ticket hub. Explore events and manage your orders.</p>
+                    <x-primary-button href="{{ route('home') }}" class="mt-5">
                         Browse More Events
-                    </a>
+                    </x-primary-button>
                 </div>
             </div>
 
@@ -88,7 +88,7 @@
             {{-- My E-Tickets Section --}}
             <div>
                 <div class="mb-6">
-                    <h2 class="text-2xl font-bold text-gray-900">🎟️ My E-Tickets</h2>
+                    <h2 class="text-2xl font-bold text-gray-900">My E-Tickets</h2>
                     <p class="text-gray-600 text-sm mt-1">Your digital tickets for upcoming events</p>
                 </div>
 
