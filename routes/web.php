@@ -43,7 +43,7 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
     } elseif ($user->hasRole('Gate Scanner')) {
         return redirect()->route('gate.dashboard');
     } else {
-        return redirect()->route('customer.dashboard');
+        return redirect()->route('home');
     }
 })->middleware(['auth', 'verified'])->name('dashboard');
 

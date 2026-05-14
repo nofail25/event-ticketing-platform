@@ -28,8 +28,9 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        // Redirect to the /dashboard hub which will forward to the correct role dashboard.
-        return redirect()->intended(route('dashboard'));
+        // Always pass through the role hub so a stale protected URL cannot
+        // redirect users into an area their account cannot access.
+        return redirect()->route('dashboard');
     }
 
     /**
