@@ -107,7 +107,7 @@
                         </div>
 
                         <!-- Quantity Selection -->
-                        <form action="{{ route('checkout.store') }}" method="POST" class="space-y-6">
+                        <form action="{{ route('checkout.store') }}" method="POST" class="space-y-6" data-price-per-ticket="{{ $ticketCategory->price }}">
                             @csrf
 
                             <input type="hidden" name="ticket_category_id" value="{{ $ticketCategory->id }}">
@@ -235,7 +235,8 @@
         </div>
 
         <script>
-            const pricePerTicket = {{ json_encode($ticketCategory->price) }};
+            const checkoutForm = document.querySelector('[data-price-per-ticket]');
+            const pricePerTicket = Number(checkoutForm.dataset.pricePerTicket) || 0;
 
             function updateTotal() {
                 const quantity = parseInt(document.getElementById('quantity').value) || 0;
