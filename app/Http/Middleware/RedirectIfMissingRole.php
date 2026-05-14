@@ -23,7 +23,10 @@ class RedirectIfMissingRole
 
         $roles = array_filter(array_map('trim', explode('|', $role)));
 
-        if (! $auth->user()->hasAnyRole($roles)) {
+        /** @var \App\Models\User $user */
+        $user = $auth->user();
+
+        if (! $user->hasAnyRole($roles)) {
             if ($request->expectsJson()) {
                 abort(403, 'User does not have the right roles.');
             }
