@@ -6,6 +6,7 @@ use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class EventController extends Controller
@@ -15,7 +16,7 @@ class EventController extends Controller
      */
     public function index()
     {
-        $events = Event::where('organizer_id', auth()->id())->latest()->paginate(10);
+        $events = Event::where('organizer_id', Auth::id())->latest()->paginate(10);
         return view('organizer.events.index', compact('events'));
     }
 
@@ -38,7 +39,7 @@ class EventController extends Controller
             $validated['banner_image'] = $request->file('banner_image')->store('banners', 'public');
         }
 
-        $validated['organizer_id'] = auth()->id();
+        $validated['organizer_id'] = Auth::id();
         $validated['status'] = 'pending';
 
         Event::create($validated);
@@ -51,7 +52,7 @@ class EventController extends Controller
      */
     public function show(Event $event)
     {
-        if ($event->organizer_id !== auth()->id()) {
+        if ($event->organizer_id !== Auth::id()) {
             abort(403);
         }
 
@@ -65,7 +66,7 @@ class EventController extends Controller
      */
     public function edit(Event $event)
     {
-        if ($event->organizer_id !== auth()->id()) {
+        if ($event->organizer_id !== Auth::id()) {
             abort(403);
         }
 
@@ -77,7 +78,7 @@ class EventController extends Controller
      */
     public function update(UpdateEventRequest $request, Event $event)
     {
-        if ($event->organizer_id !== auth()->id()) {
+        if ($event->organizer_id !== Auth::id()) {
             abort(403);
         }
 
@@ -105,7 +106,7 @@ class EventController extends Controller
      */
     public function destroy(Event $event)
     {
-        if ($event->organizer_id !== auth()->id()) {
+        if ($event->organizer_id !== Auth::id()) {
             abort(403);
         }
 
