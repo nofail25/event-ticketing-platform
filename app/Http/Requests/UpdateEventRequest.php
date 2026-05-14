@@ -27,7 +27,6 @@ class UpdateEventRequest extends FormRequest
             'location' => 'required|string|max:255',
             'start_time' => 'required|date',
             'end_time' => 'required|date|after_or_equal:start_time',
-            'status' => 'required|in:Draft,Published,Cancelled',
             'banner_image' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:2048',
         ];
     }

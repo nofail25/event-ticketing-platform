@@ -55,15 +55,9 @@
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Status -->
-                            <div>
-                                <x-input-label for="status" :value="__('Status')" />
-                                <select id="status" name="status" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
-                                    <option value="Draft" {{ old('status') == 'Draft' ? 'selected' : '' }}>Draft</option>
-                                    <option value="Published" {{ old('status') == 'Published' ? 'selected' : '' }}>Published</option>
-                                    <option value="Cancelled" {{ old('status') == 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
-                                </select>
-                                <x-input-error :messages="$errors->get('status')" class="mt-2" />
+                            <div class="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+                                <p class="text-sm font-semibold text-yellow-900">Approval Required</p>
+                                <p class="mt-1 text-sm text-yellow-700">New events are submitted as pending until a Super Admin approves them.</p>
                             </div>
 
                             <!-- Banner Image -->

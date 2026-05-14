@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use App\Models\TicketDetail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -45,11 +46,11 @@ class HomeController extends Controller
 
         $userEventTickets = collect();
 
-        if (auth()->check()) {
+        if (Auth::check()) {
             $userEventTickets = TicketDetail::query()
                 ->with(['order', 'ticketCategory'])
                 ->whereHas('order', function ($query) {
-                    $query->where('user_id', auth()->id())
+                    $query->where('user_id', Auth::id())
                           ->where('payment_status', 'paid');
                 })
                 ->whereHas('ticketCategory', function ($query) use ($event) {

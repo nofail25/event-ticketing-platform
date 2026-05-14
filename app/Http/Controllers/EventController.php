@@ -39,10 +39,11 @@ class EventController extends Controller
         }
 
         $validated['organizer_id'] = auth()->id();
+        $validated['status'] = 'pending';
 
         Event::create($validated);
 
-        return redirect()->route('organizer.events.index')->with('success', 'Event created successfully.');
+        return redirect()->route('organizer.events.index')->with('success', 'Event created and submitted for admin approval.');
     }
 
     /**
@@ -81,6 +82,7 @@ class EventController extends Controller
         }
 
         $validated = $request->validated();
+        unset($validated['status']);
 
         if ($request->hasFile('banner_image')) {
             if ($event->banner_image) {
@@ -89,9 +91,13 @@ class EventController extends Controller
             $validated['banner_image'] = $request->file('banner_image')->store('banners', 'public');
         }
 
+        if ($event->status === 'active') {
+            $validated['status'] = 'pending';
+        }
+
         $event->update($validated);
 
-        return redirect()->route('organizer.events.index')->with('success', 'Event updated successfully.');
+        return redirect()->route('organizer.events.index')->with('success', 'Event updated successfully. Active events are sent back for admin approval after edits.');
     }
 
     /**

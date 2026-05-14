@@ -114,58 +114,91 @@
                                 $ticket = $item['ticket'];
                                 $category = $item['category'];
                             @endphp
-                            <div class="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-lg p-6 text-white relative overflow-hidden">
+                            <div x-data="{ showQR: false }" class="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-lg overflow-hidden transition-all duration-300 text-white relative">
                                 <!-- Background decoration -->
                                 <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full"></div>
                                 <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-white/5 rounded-full"></div>
 
                                 <div class="relative z-10">
-                                    <!-- Ticket Header -->
-                                    <div class="mb-4 pb-4 border-b border-white/20">
-                                        <div class="flex justify-between items-start mb-2">
-                                            <span class="text-xs font-semibold uppercase tracking-widest text-blue-100">E-TICKET</span>
-                                            @if($ticket->is_scanned)
-                                                <span class="text-xs font-bold px-2 py-1 rounded-full bg-green-400 text-green-900">✓ Scanned</span>
-                                            @else
-                                                <span class="text-xs font-bold px-2 py-1 rounded-full bg-white/20">Not Used</span>
-                                            @endif
+                                    <!-- Compact View (Always Visible) -->
+                                    <div class="p-6">
+                                        <!-- Ticket Header -->
+                                        <div class="mb-4">
+                                            <div class="flex justify-between items-start mb-3">
+                                                <span class="text-xs font-semibold uppercase tracking-widest text-blue-100">E-TICKET</span>
+                                                @if($ticket->is_scanned)
+                                                    <span class="text-xs font-bold px-2 py-1 rounded-full bg-green-400 text-green-900">✓ Scanned</span>
+                                                @else
+                                                    <span class="text-xs font-bold px-2 py-1 rounded-full bg-white/20">Not Used</span>
+                                                @endif
+                                            </div>
+                                            <h3 class="text-xl font-bold mb-3">{{ $event->title }}</h3>
                                         </div>
-                                        <h3 class="text-2xl font-bold">{{ $event->title }}</h3>
+
+                                        <!-- Event Details (Compact) -->
+                                        <div class="space-y-2 mb-6 text-sm text-blue-100">
+                                            <div class="flex items-center gap-2">
+                                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                                </svg>
+                                                <span class="text-white font-semibold">{{ $event->start_time->format('F d, Y • h:i A') }}</span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+                                                </svg>
+                                                <span class="text-white font-semibold">{{ $category->name }}</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Toggle Button -->
+                                        <button
+                                            @click="showQR = !showQR"
+                                            class="w-full px-4 py-3 font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+                                            :class="showQR ? 'bg-white text-indigo-600 hover:bg-blue-50' : 'bg-white/20 text-white hover:bg-white/30 border border-white/30'"
+                                        >
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path x-show="!showQR" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m0 0h6m0 0h-6m0-6H6"></path>
+                                                <path x-show="showQR" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12a8 8 0 11-16 0 8 8 0 0116 0zM9 9l3 3m0 0l3-3m0 0l-3-3m0 0l-3 3"></path>
+                                            </svg>
+                                            <span x-text="showQR ? 'Hide QR Code' : 'View QR Code'"></span>
+                                        </button>
+
+                                        <!-- Invoice Info -->
+                                        <div class="text-xs text-blue-100 mt-4 pt-4 border-t border-white/20">
+                                            <p class="font-semibold text-white mb-1">{{ $item['order']->invoice_number }}</p>
+                                            <p>Purchased: {{ $item['order']->created_at->format('M d, Y') }}</p>
+                                        </div>
                                     </div>
 
-                                    <!-- Event Details -->
-                                    <div class="space-y-2 mb-6 text-sm text-blue-100">
+                                    <!-- Expanded QR Code Section -->
+                                    <div
+                                        x-show="showQR"
+                                        x-transition:enter="transition ease-out duration-300"
+                                        x-transition:enter-start="opacity-0"
+                                        x-transition:enter-end="opacity-100"
+                                        x-transition:leave="transition ease-in duration-200"
+                                        x-transition:leave-start="opacity-100"
+                                        x-transition:leave-end="opacity-0"
+                                        class="bg-white/10 border-t border-white/20 p-6 space-y-4"
+                                    >
                                         <div>
-                                            <p class="text-xs opacity-75">Event Date</p>
-                                            <p class="font-semibold text-white">{{ $event->start_time->format('F d, Y • h:i A') }}</p>
+                                            <p class="text-xs font-semibold uppercase tracking-widest text-blue-100 mb-3">QR Code</p>
+                                            <div class="flex justify-center">
+                                                <div class="bg-white p-4 rounded-lg shadow-lg">
+                                                    <img
+                                                        src="{{ \App\Support\QrCode::svgDataUri($ticket->barcode_string, 160) }}"
+                                                        alt="QR code for ticket {{ $ticket->id }}"
+                                                        class="w-40 h-40"
+                                                    >
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p class="text-xs opacity-75">Location</p>
-                                            <p class="font-semibold text-white">{{ $event->location }}</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-xs opacity-75">Ticket Type</p>
-                                            <p class="font-semibold text-white">{{ $category->name }}</p>
-                                        </div>
-                                    </div>
 
-                                    <!-- QR Code Section -->
-                                    <div class="bg-white/10 rounded-lg p-4 mb-4 border border-white/20">
-                                        <p class="text-xs font-semibold uppercase tracking-widest text-blue-100 mb-3">QR Code</p>
-                                        <div class="inline-flex bg-white p-2 rounded-lg shadow-sm">
-                                            <img
-                                                src="{{ \App\Support\QrCode::svgDataUri($ticket->barcode_string, 160) }}"
-                                                alt="QR code for ticket {{ $ticket->id }}"
-                                                class="w-40 h-40"
-                                            >
+                                        <div>
+                                            <p class="text-xs font-semibold uppercase tracking-widest text-blue-100 mb-2">Ticket Code</p>
+                                            <p class="font-mono text-sm font-semibold text-white break-all bg-white/10 p-3 rounded-lg border border-white/20">{{ $ticket->barcode_string }}</p>
                                         </div>
-                                        <p class="font-mono text-xs font-semibold text-white break-all mt-3">{{ $ticket->barcode_string }}</p>
-                                    </div>
-
-                                    <!-- Order Info -->
-                                    <div class="text-xs text-blue-100 border-t border-white/20 pt-3">
-                                        <p class="font-semibold text-white">Invoice: {{ $item['order']->invoice_number }}</p>
-                                        <p>Purchased: {{ $item['order']->created_at->format('M d, Y') }}</p>
                                     </div>
                                 </div>
                             </div>

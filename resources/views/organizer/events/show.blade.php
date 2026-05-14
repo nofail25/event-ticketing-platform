@@ -43,12 +43,14 @@
                                     <div>
                                         <p class="text-xs text-gray-500">Status</p>
                                         <p class="font-medium">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                @if($event->status == 'Published') bg-green-100 text-green-800 
-                                                @elseif($event->status == 'Draft') bg-yellow-100 text-yellow-800
-                                                @else bg-red-100 text-red-800 @endif">
-                                                {{ $event->status }}
-                                            </span>
+                                            @php
+                                                $statusColor = match($event->status) {
+                                                    'active' => 'green',
+                                                    'pending', 'draft' => 'yellow',
+                                                    default => 'gray',
+                                                };
+                                            @endphp
+                                            <x-badge :color="$statusColor" class="capitalize">{{ $event->status }}</x-badge>
                                         </p>
                                     </div>
                                     <div>

@@ -54,12 +54,12 @@
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @php
                                             $statusColor = match($event->status) {
-                                                'Published' => 'green',
-                                                'Draft' => 'yellow',
-                                                default => 'red',
+                                                'active' => 'green',
+                                                'pending', 'draft' => 'yellow',
+                                                default => 'gray',
                                             };
                                         @endphp
-                                        <x-badge :color="$statusColor">{{ $event->status }}</x-badge>
+                                        <x-badge :color="$statusColor" class="capitalize">{{ $event->status }}</x-badge>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <a href="{{ route('organizer.events.show', $event) }}" class="text-indigo-600 hover:text-indigo-900 mr-3 transition">Manage</a>

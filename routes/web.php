@@ -7,6 +7,9 @@ use App\Http\Controllers\Dashboard\CustomerDashboardController;
 use App\Http\Controllers\Dashboard\ScannerDashboardController;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\AdminEventController;
+use App\Http\Controllers\AdminOrderController;
+use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\TicketCategoryController;
 use App\Http\Controllers\HomeController;
@@ -53,6 +56,10 @@ Route::middleware(['auth', 'verified', 'role:Super Admin'])
     ->name('admin.')
     ->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::get('/events', [AdminEventController::class, 'index'])->name('events.index');
+        Route::patch('/events/{event}/approve', [AdminEventController::class, 'approve'])->name('events.approve');
+        Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
     });
 
 /*
