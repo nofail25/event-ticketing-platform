@@ -25,7 +25,7 @@ class HomeController extends Controller
             });
         }
 
-        $events = $query->paginate(9);
+        $events = $query->paginate(9)->withQueryString();
 
         return view('welcome', ['events' => $events]);
     }
@@ -49,7 +49,8 @@ class HomeController extends Controller
             $userEventTickets = TicketDetail::query()
                 ->with(['order', 'ticketCategory'])
                 ->whereHas('order', function ($query) {
-                    $query->where('user_id', auth()->id());
+                    $query->where('user_id', auth()->id())
+                          ->where('payment_status', 'paid');
                 })
                 ->whereHas('ticketCategory', function ($query) use ($event) {
                     $query->where('event_id', $event->id);
