@@ -1,3 +1,117 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    :root {
+        color-scheme: dark;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply bg-slate-950 text-slate-100;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+}
+
+@layer components {
+    .dark-page-shell {
+        @apply relative min-h-screen overflow-hidden bg-slate-950 text-slate-100;
+    }
+
+    .dark-page-shell::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+            radial-gradient(circle at 12% 8%, rgba(34, 211, 238, 0.22), transparent 30rem),
+            radial-gradient(circle at 88% 12%, rgba(217, 70, 239, 0.22), transparent 32rem),
+            radial-gradient(circle at 50% 95%, rgba(132, 204, 22, 0.13), transparent 26rem),
+            linear-gradient(135deg, #020617 0%, #070a1a 48%, #0f1025 100%);
+    }
+
+    .dark-page-shell::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.22;
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 64px 64px;
+        -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.85), transparent 82%);
+        mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.85), transparent 82%);
+    }
+
+    .dark-page-content {
+        @apply relative z-10;
+    }
+
+    .glass-panel {
+        @apply border border-white/10 bg-white/5 shadow-2xl shadow-cyan-950/20 backdrop-blur-xl;
+    }
+
+    .neon-card {
+        @apply relative overflow-hidden rounded-3xl border border-white/10 bg-slate-900/70 shadow-2xl shadow-fuchsia-950/30 backdrop-blur-xl;
+    }
+
+    .neon-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+            linear-gradient(135deg, rgba(34, 211, 238, 0.16), transparent 35%),
+            radial-gradient(circle at top right, rgba(217, 70, 239, 0.22), transparent 45%);
+        opacity: 0.7;
+    }
+
+    .neon-card > * {
+        @apply relative z-10;
+    }
+
+    .neon-button {
+        @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-300 via-fuchsia-400 to-violet-500 px-5 py-3 text-sm font-black uppercase tracking-wide text-slate-950 shadow-lg shadow-fuchsia-500/25 transition duration-300 hover:-translate-y-0.5 hover:shadow-cyan-400/30 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950;
+    }
+
+    .neon-button-outline {
+        @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-cyan-300/30 bg-cyan-300/5 px-5 py-3 text-sm font-bold text-cyan-100 shadow-lg shadow-cyan-950/20 transition duration-300 hover:-translate-y-0.5 hover:border-cyan-200/70 hover:bg-cyan-300/10 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950;
+    }
+
+    .neon-chip {
+        @apply inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-slate-200 backdrop-blur;
+    }
+
+    .orb-glow {
+        filter: blur(46px);
+    }
+
+    .dark-form-input {
+        @apply w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-slate-100 placeholder:text-slate-500 shadow-inner shadow-black/20 transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/40;
+    }
+
+    .dark-select {
+        @apply rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-slate-100 shadow-inner shadow-black/20 transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/40;
+    }
+
+    .pagination-dark nav {
+        @apply text-slate-300;
+    }
+
+    .pagination-dark a,
+    .pagination-dark span {
+        @apply border-white/10 bg-slate-900/80 text-slate-200 shadow-sm shadow-cyan-950/20;
+    }
+
+    .pagination-dark a:hover {
+        @apply border-cyan-300/40 bg-cyan-300/10 text-cyan-100;
+    }
+}

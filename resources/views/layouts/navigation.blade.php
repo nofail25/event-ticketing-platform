@@ -1,22 +1,23 @@
-<nav x-data="{ open: false }" class="bg-gradient-to-r from-indigo-700 via-indigo-700 to-purple-700 shadow-lg shadow-indigo-900/10">
+<nav x-data="{ open: false }" class="dark-page-content sticky top-0 z-50 border-b border-cyan-400/10 bg-slate-950/75 shadow-2xl shadow-cyan-950/20 backdrop-blur-2xl">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
+        <div class="flex min-h-20 items-center justify-between gap-4">
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('home') }}" class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-lg bg-white/15 ring-1 ring-white/25 flex items-center justify-center">
-                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <div class="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-cyan-300/30 bg-cyan-300/10 shadow-lg shadow-cyan-500/20">
+                            <span class="absolute -inset-1 rounded-2xl bg-gradient-to-br from-cyan-300/30 via-fuchsia-400/20 to-lime-300/20 blur-md"></span>
+                            <svg class="relative h-5 w-5 text-cyan-100" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
                             </svg>
                         </div>
-                        <span class="font-bold text-white text-sm hidden md:block">EventTicketing</span>
+                        <span class="hidden bg-gradient-to-r from-cyan-200 via-fuchsia-200 to-lime-200 bg-clip-text text-sm font-black text-transparent md:block">EventTicketing</span>
                     </a>
                 </div>
 
                 <!-- Navigation Links (role-based) -->
-                <div class="hidden space-x-1 sm:-my-px sm:ms-8 sm:flex items-center">
+                <div class="hidden flex-wrap items-center gap-2 md:ms-8 md:flex">
 
                     @role('Super Admin')
                         <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
@@ -53,6 +54,10 @@
                     @endrole
 
                     @role('Customer')
+                        <x-nav-link :href="route('home')" :active="request()->routeIs('home') || request()->routeIs('events.show') || request()->routeIs('checkout.*')">
+                            <svg class="w-4 h-4 me-1.5 inline-block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197M16.5 10.5a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+                            Explore
+                        </x-nav-link>
                         <x-nav-link :href="route('customer.dashboard')" :active="request()->routeIs('customer.*')">
                             <svg class="w-4 h-4 me-1.5 inline-block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
                             My Tickets
@@ -75,33 +80,34 @@
                 {{-- Role Badge --}}
                 @php
                     $roleConfig = match(true) {
-                        Auth::user()->hasRole('Super Admin')     => ['label' => 'Super Admin',    'class' => 'bg-violet-100 text-violet-700'],
-                        Auth::user()->hasRole('Event Organizer') => ['label' => 'Organizer',      'class' => 'bg-emerald-100 text-emerald-700'],
-                        Auth::user()->hasRole('Gate Scanner')    => ['label' => 'Gate Scanner',   'class' => 'bg-orange-100 text-orange-700'],
-                        default                                  => ['label' => 'Customer',       'class' => 'bg-blue-100 text-blue-700'],
+                        Auth::user()->hasRole('Super Admin')     => ['label' => 'Super Admin',    'class' => 'border-violet-300/30 bg-violet-400/10 text-violet-100'],
+                        Auth::user()->hasRole('Event Organizer') => ['label' => 'Organizer',      'class' => 'border-emerald-300/30 bg-emerald-400/10 text-emerald-100'],
+                        Auth::user()->hasRole('Gate Scanner')    => ['label' => 'Gate Scanner',   'class' => 'border-orange-300/30 bg-orange-400/10 text-orange-100'],
+                        default                                  => ['label' => 'Customer',       'class' => 'border-cyan-300/30 bg-cyan-400/10 text-cyan-100'],
                     };
                 @endphp
-                <span class="hidden lg:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold {{ $roleConfig['class'] }}">
+                <span class="hidden lg:inline-flex items-center px-3 py-1.5 rounded-full border text-xs font-black uppercase tracking-wider {{ $roleConfig['class'] }}">
                     {{ $roleConfig['label'] }}
                 </span>
 
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="inline-flex items-center gap-2 px-3 py-2 border border-white/20 text-sm leading-4 font-medium rounded-lg text-white bg-white/10 hover:bg-white/15 focus:outline-none transition ease-in-out duration-150">
-                            <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-xs">
+                        <button class="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-bold leading-4 text-white transition hover:border-fuchsia-300/30 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-cyan-300/50">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-300 to-fuchsia-400 text-xs font-black text-slate-950 shadow-lg shadow-fuchsia-500/20">
                                 {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                             </div>
                             <span>{{ Auth::user()->name }}</span>
-                            <svg class="fill-current h-4 w-4 text-indigo-100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <svg class="fill-current h-4 w-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                             </svg>
                         </button>
                     </x-slot>
 
                     <x-slot name="content">
-                        <div class="px-4 py-2 border-b border-gray-100">
-                            <p class="text-xs text-gray-500">{{ Auth::user()->email }}</p>
-                            <p class="text-xs font-semibold mt-0.5 {{ $roleConfig['class'] }} w-fit px-1.5 py-0.5 rounded">{{ $roleConfig['label'] }}</p>
+                        <div class="px-4 py-3 border-b border-white/10">
+                            <p class="text-sm font-bold text-white">{{ Auth::user()->name }}</p>
+                            <p class="text-xs text-slate-400">{{ Auth::user()->email }}</p>
+                            <p class="text-xs font-semibold mt-2 {{ $roleConfig['class'] }} w-fit px-2 py-1 rounded-full border">{{ $roleConfig['label'] }}</p>
                         </div>
                         <x-dropdown-link :href="route('profile.edit')">
                             <svg class="w-4 h-4 me-2 inline-block text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
@@ -123,7 +129,7 @@
 
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-indigo-100 hover:text-white hover:bg-white/10 focus:outline-none focus:bg-white/10 focus:text-white transition duration-150 ease-in-out">
+                <button @click="open = ! open" class="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-2.5 text-slate-200 transition hover:border-cyan-300/40 hover:bg-cyan-300/10 hover:text-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-300/50">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -134,8 +140,8 @@
     </div>
 
     <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden border-t border-white/10 bg-slate-950/95 px-4 pb-5 pt-3 backdrop-blur-2xl sm:hidden">
+        <div class="space-y-2">
 
             @role('Super Admin')
                 <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
@@ -165,6 +171,9 @@
             @endrole
 
             @role('Customer')
+                <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home') || request()->routeIs('events.show') || request()->routeIs('checkout.*')">
+                    Explore Events
+                </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('customer.dashboard')" :active="request()->routeIs('customer.*')">
                     My Tickets
                 </x-responsive-nav-link>
@@ -179,14 +188,14 @@
         </div>
 
         <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-white/15">
+        <div class="mt-4 rounded-3xl border border-white/10 bg-white/5 p-4">
             <div class="px-4 flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-300 to-fuchsia-400 flex items-center justify-center text-slate-950 font-black text-sm">
                     {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                 </div>
                 <div>
                     <div class="font-medium text-base text-white">{{ Auth::user()->name }}</div>
-                    <div class="font-medium text-sm text-indigo-100">{{ Auth::user()->email }}</div>
+                    <div class="font-medium text-sm text-slate-400">{{ Auth::user()->email }}</div>
                 </div>
             </div>
 

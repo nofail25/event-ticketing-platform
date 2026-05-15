@@ -30,7 +30,7 @@ class TicketOrderService
                 ->lockForUpdate()
                 ->findOrFail($ticketCategoryId);
 
-            // Calculate available quota
+            // Quota stores the original capacity. Sold tickets are represented by ticket details.
             $sold = $ticketCategory->ticketDetails()->count();
             $available = $ticketCategory->quota - $sold;
 
@@ -65,9 +65,6 @@ class TicketOrderService
                     'is_scanned' => false,
                 ]);
             }
-
-            // Decrement the quota
-            $ticketCategory->decrement('quota', $quantity);
 
             // Send notification to the user
             $user = User::find($userId);
