@@ -14,12 +14,15 @@ class Order extends Model
         'invoice_number',
         'total_amount',
         'payment_status',
+        'payment_method',
+        'platform_fee',
     ];
 
     protected function casts(): array
     {
         return [
             'total_amount' => 'decimal:2',
+            'platform_fee' => 'decimal:2',
         ];
     }
 

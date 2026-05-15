@@ -149,7 +149,11 @@
                         @foreach($events as $event)
                             <x-card class="hover:shadow-xl transition">
                                 <!-- Event Image -->
-                                <div class="relative h-48 bg-gray-200 overflow-hidden">
+                                <a
+                                    href="{{ route('events.show', $event) }}"
+                                    class="relative h-48 bg-gray-200 overflow-hidden block focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                    aria-label="View details for {{ $event->title }}"
+                                >
                                     @if($event->banner_image)
                                         <img
                                             src="{{ asset('storage/' . $event->banner_image) }}"
@@ -163,7 +167,7 @@
                                             </svg>
                                         </div>
                                     @endif
-                                </div>
+                                </a>
 
                                 <!-- Event Details -->
                                 <div class="p-6">

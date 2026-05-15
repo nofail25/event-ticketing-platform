@@ -15,12 +15,13 @@ class TicketOrderService
      * @param int $ticketCategoryId
      * @param int $quantity
      * @param int $userId
+     * @param string $paymentMethod
      * @return Order
      * @throws \Exception
      */
-    public function processOrder(int $ticketCategoryId, int $quantity, int $userId): Order
+    public function processOrder(int $ticketCategoryId, int $quantity, int $userId, string $paymentMethod): Order
     {
-        return DB::transaction(function () use ($ticketCategoryId, $quantity, $userId) {
+        return DB::transaction(function () use ($ticketCategoryId, $quantity, $userId, $paymentMethod) {
             // Fetch the ticket category with its event
             $ticketCategory = TicketCategory::with('event')
                 ->lockForUpdate()
@@ -36,7 +37,8 @@ class TicketOrderService
             }
 
             // Calculate total amount
-            $totalAmount = $ticketCategory->price * $quantity;
+            $platformFee = 5000;
+            $totalAmount = ($ticketCategory->price * $quantity) + $platformFee;
 
             // Generate unique invoice number (INV-YYYYMMDD-XXXX)
             $invoiceNumber = 'INV-' . now()->format('Ymd') . '-' . strtoupper(Str::random(4));
@@ -47,6 +49,8 @@ class TicketOrderService
                 'invoice_number' => $invoiceNumber,
                 'total_amount' => $totalAmount,
                 'payment_status' => 'paid', // Simulated as paid
+                'payment_method' => $paymentMethod,
+                'platform_fee' => $platformFee,
             ]);
 
             // Create ticket details (e-tickets) for each quantity

@@ -60,10 +60,21 @@
                     <h3 class="font-semibold text-gray-800">Recent Orders</h3>
                 </div>
                 @forelse($recentOrders as $order)
+                @php
+                    $paymentMethodLabel = match($order->payment_method) {
+                        'qris' => 'QRIS',
+                        'virtual_account' => 'Virtual Account',
+                        'e_wallet' => 'E-Wallet',
+                        default => 'Payment',
+                    };
+                @endphp
                 <div class="px-6 py-4 flex items-center justify-between border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
                     <div>
                         <p class="font-medium text-gray-800 font-mono text-sm">{{ $order->invoice_number }}</p>
                         <p class="text-xs text-gray-500 mt-0.5">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</p>
+                        @if($order->payment_method)
+                            <p class="text-xs font-semibold text-blue-700 mt-1">Paid via {{ $paymentMethodLabel }}</p>
+                        @endif
                     </div>
                     @php
                         $badgeColor = match($order->payment_status) {
@@ -168,6 +179,17 @@
                                         <div class="text-xs text-blue-100 mt-4 pt-4 border-t border-white/20">
                                             <p class="font-semibold text-white mb-1">{{ $item['order']->invoice_number }}</p>
                                             <p>Purchased: {{ $item['order']->created_at->format('M d, Y') }}</p>
+                                            @if($item['order']->payment_method)
+                                                @php
+                                                    $ticketPaymentMethodLabel = match($item['order']->payment_method) {
+                                                        'qris' => 'QRIS',
+                                                        'virtual_account' => 'Virtual Account',
+                                                        'e_wallet' => 'E-Wallet',
+                                                        default => 'Payment',
+                                                    };
+                                                @endphp
+                                                <p class="mt-1">Paid via {{ $ticketPaymentMethodLabel }}</p>
+                                            @endif
                                         </div>
                                     </div>
 

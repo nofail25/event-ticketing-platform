@@ -3,13 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProcessCheckoutRequest;
-use App\Models\Order;
 use App\Models\TicketCategory;
 use App\Services\TicketOrderService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
@@ -49,10 +45,11 @@ class CheckoutController extends Controller
         $validated = $request->validated();
         $ticketCategoryId = $validated['ticket_category_id'];
         $quantity = $validated['quantity'];
+        $paymentMethod = $validated['payment_method'];
         $userId = Auth::id();
 
         try {
-            $orderService->processOrder($ticketCategoryId, $quantity, $userId);
+            $orderService->processOrder($ticketCategoryId, $quantity, $userId, $paymentMethod);
 
             return redirect()
                 ->route('customer.dashboard')

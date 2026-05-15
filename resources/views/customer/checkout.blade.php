@@ -71,7 +71,37 @@
         </nav>
 
         <!-- Checkout Container -->
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div
+            class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12"
+            x-data="{
+                quantity: {{ (int) old('quantity', 1) }},
+                selectedPaymentMethod: @js(old('payment_method', 'qris')),
+                platformFee: 5000,
+                pricePerTicket: {{ (float) $ticketCategory->price }},
+                get subtotal() {
+                    return this.pricePerTicket * (Number(this.quantity) || 0);
+                },
+                get grandTotal() {
+                    return this.subtotal + this.platformFee;
+                },
+                formatCurrency(value) {
+                    return new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        maximumFractionDigits: 0
+                    }).format(value || 0);
+                },
+                paymentLabel() {
+                    const labels = {
+                        qris: 'QRIS',
+                        virtual_account: 'Virtual Account',
+                        e_wallet: 'E-Wallet'
+                    };
+
+                    return labels[this.selectedPaymentMethod] || this.selectedPaymentMethod;
+                }
+            }"
+        >
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Order Summary -->
                 <div class="lg:col-span-2">
@@ -83,10 +113,10 @@
                             <p class="text-sm text-gray-600 mb-2">Event</p>
                             <h2 class="text-2xl font-bold text-gray-900">{{ $event->title }}</h2>
                             <p class="text-gray-600 mt-2">
-                                📅 {{ $event->start_time->format('M d, Y \a\t h:i A') }}
+                                &#x1F4C5; {{ $event->start_time->format('M d, Y \a\t h:i A') }}
                             </p>
                             <p class="text-gray-600">
-                                📍 {{ $event->location }}
+                                &#x1F4CD; {{ $event->location }}
                             </p>
                         </div>
 
@@ -97,7 +127,7 @@
                             <div class="flex items-center gap-4 mt-3">
                                 <div>
                                     <p class="text-sm text-gray-600">Price per Ticket</p>
-                                    <p class="text-2xl font-bold text-blue-600">${{ number_format($ticketCategory->price, 2) }}</p>
+                                    <p class="text-2xl font-bold text-blue-600">Rp {{ number_format($ticketCategory->price, 0, ',', '.') }}</p>
                                 </div>
                                 <div>
                                     <p class="text-sm text-gray-600">Tickets Available</p>
@@ -107,10 +137,11 @@
                         </div>
 
                         <!-- Quantity Selection -->
-                        <form action="{{ route('checkout.store') }}" method="POST" class="space-y-6" data-price-per-ticket="{{ $ticketCategory->price }}">
+                        <form action="{{ route('checkout.store') }}" method="POST" class="space-y-6">
                             @csrf
 
                             <input type="hidden" name="ticket_category_id" value="{{ $ticketCategory->id }}">
+                            <input type="hidden" name="payment_method" x-model="selectedPaymentMethod">
 
                             <div>
                                 <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">
@@ -121,10 +152,9 @@
                                         id="quantity"
                                         name="quantity"
                                         class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        onchange="updateTotal()"
+                                        x-model.number="quantity"
                                         required
                                     >
-                                        <option value="">Select quantity...</option>
                                         @for($i = 1; $i <= $maxQuantity; $i++)
                                             <option value="{{ $i }}">{{ $i }} @if($i > 1) Tickets @else Ticket @endif</option>
                                         @endfor
@@ -138,32 +168,76 @@
                                 @enderror
                             </div>
 
+                            <!-- Payment Method Selection -->
+                            <div class="space-y-3">
+                                <div>
+                                    <h2 class="text-lg font-bold text-gray-900">Select Payment Method</h2>
+                                    <p class="text-sm text-gray-600 mt-1">Choose a simulated payment channel to complete this order.</p>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <button
+                                        type="button"
+                                        class="text-left rounded-lg border p-4 transition shadow-sm hover:border-blue-300 hover:bg-blue-50/60"
+                                        :class="selectedPaymentMethod === 'qris' ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-100' : 'border-gray-200 bg-white'"
+                                        @click="selectedPaymentMethod = 'qris'"
+                                    >
+                                        <span class="text-2xl" aria-hidden="true">&#x1F4F1;</span>
+                                        <span class="block font-bold text-gray-900 mt-3">QRIS</span>
+                                        <span class="block text-xs text-gray-500 mt-1">Instant</span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        class="text-left rounded-lg border p-4 transition shadow-sm hover:border-blue-300 hover:bg-blue-50/60"
+                                        :class="selectedPaymentMethod === 'virtual_account' ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-100' : 'border-gray-200 bg-white'"
+                                        @click="selectedPaymentMethod = 'virtual_account'"
+                                    >
+                                        <span class="text-2xl" aria-hidden="true">&#x1F3E6;</span>
+                                        <span class="block font-bold text-gray-900 mt-3">Virtual Account</span>
+                                        <span class="block text-xs text-gray-500 mt-1">BCA, Mandiri, BRI</span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        class="text-left rounded-lg border p-4 transition shadow-sm hover:border-blue-300 hover:bg-blue-50/60"
+                                        :class="selectedPaymentMethod === 'e_wallet' ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-100' : 'border-gray-200 bg-white'"
+                                        @click="selectedPaymentMethod = 'e_wallet'"
+                                    >
+                                        <span class="text-2xl" aria-hidden="true">&#x1F4B3;</span>
+                                        <span class="block font-bold text-gray-900 mt-3">E-Wallet</span>
+                                        <span class="block text-xs text-gray-500 mt-1">GoPay, OVO, DANA</span>
+                                    </button>
+                                </div>
+                                @error('payment_method')
+                                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
                             <!-- Price Breakdown -->
                             <div class="bg-gray-50 rounded-lg p-4">
                                 <div class="flex justify-between items-center mb-2">
                                     <p class="text-gray-600">Subtotal</p>
-                                    <p class="font-semibold text-gray-900">
-                                        <span id="subtotal-price">${{ number_format($ticketCategory->price, 2) }}</span>
-                                    </p>
+                                    <p class="font-semibold text-gray-900" x-text="formatCurrency(subtotal)"></p>
+                                </div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <p class="text-gray-600">Platform Fee</p>
+                                    <p class="font-semibold text-gray-900" x-text="formatCurrency(platformFee)"></p>
                                 </div>
                                 <div class="flex justify-between items-center mb-3 pb-3 border-b">
                                     <p class="text-gray-600">Quantity</p>
-                                    <p class="font-semibold text-gray-900">
-                                        <span id="quantity-display">1</span> ticket(s)
-                                    </p>
+                                    <p class="font-semibold text-gray-900"><span x-text="quantity"></span> ticket(s)</p>
                                 </div>
                                 <div class="flex justify-between items-center">
-                                    <p class="text-lg font-semibold text-gray-900">Total Price</p>
-                                    <p class="text-3xl font-bold text-blue-600">
-                                        $<span id="total-price">{{ number_format($ticketCategory->price, 2) }}</span>
-                                    </p>
+                                    <p class="text-lg font-semibold text-gray-900">Grand Total</p>
+                                    <p class="text-3xl font-bold text-blue-600" x-text="formatCurrency(grandTotal)"></p>
                                 </div>
                             </div>
 
                             <!-- Important Notice -->
                             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                                 <p class="text-sm text-blue-800">
-                                    <strong>ℹ Payment Note:</strong> This is a simulated checkout. Your order will be created immediately and your e-tickets will be generated.
+                                    <strong>&#x2139; Payment Note:</strong> This is a simulated checkout. Your order will be created immediately and your e-tickets will be generated.
                                 </p>
                             </div>
 
@@ -171,9 +245,8 @@
                             <button
                                 type="submit"
                                 class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition text-lg"
-                            >
-                                Confirm & Pay (Simulated)
-                            </button>
+                                x-text="'Pay with ' + paymentLabel().toUpperCase() + ' (Simulated)'"
+                            ></button>
 
                             <a
                                 href="{{ route('events.show', $event) }}"
@@ -193,19 +266,29 @@
                         <div class="space-y-3 mb-6">
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Price per ticket:</span>
-                                <span class="font-semibold text-gray-900">${{ number_format($ticketCategory->price, 2) }}</span>
+                                <span class="font-semibold text-gray-900">Rp {{ number_format($ticketCategory->price, 0, ',', '.') }}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Quantity:</span>
                                 <span class="font-semibold text-gray-900">
-                                    <span id="summary-qty">1</span>
+                                    <span x-text="quantity"></span>
                                 </span>
                             </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Subtotal:</span>
+                                <span class="font-semibold text-gray-900" x-text="formatCurrency(subtotal)"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Platform Fee:</span>
+                                <span class="font-semibold text-gray-900" x-text="formatCurrency(platformFee)"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Payment:</span>
+                                <span class="font-semibold text-gray-900" x-text="paymentLabel()"></span>
+                            </div>
                             <div class="border-t pt-3 flex justify-between">
-                                <span class="text-lg font-bold text-gray-900">Total:</span>
-                                <span class="text-2xl font-bold text-blue-600">
-                                    $<span id="summary-total">{{ number_format($ticketCategory->price, 2) }}</span>
-                                </span>
+                                <span class="text-lg font-bold text-gray-900">Grand Total:</span>
+                                <span class="text-2xl font-bold text-blue-600" x-text="formatCurrency(grandTotal)"></span>
                             </div>
                         </div>
 
@@ -234,24 +317,5 @@
             </div>
         </div>
 
-        <script>
-            const checkoutForm = document.querySelector('[data-price-per-ticket]');
-            const pricePerTicket = Number(checkoutForm.dataset.pricePerTicket) || 0;
-
-            function updateTotal() {
-                const quantity = parseInt(document.getElementById('quantity').value) || 0;
-                
-                if (quantity > 0) {
-                    const total = (pricePerTicket * quantity).toFixed(2);
-                    
-                    document.getElementById('quantity-display').textContent = quantity;
-                    document.getElementById('subtotal-price').textContent = '$' + (pricePerTicket * quantity).toFixed(2);
-                    document.getElementById('total-price').textContent = total;
-                    
-                    document.getElementById('summary-qty').textContent = quantity;
-                    document.getElementById('summary-total').textContent = total;
-                }
-            }
-        </script>
     </body>
 </html>

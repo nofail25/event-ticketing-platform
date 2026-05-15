@@ -24,6 +24,7 @@ class ProcessCheckoutRequest extends FormRequest
         return [
             'ticket_category_id' => 'required|exists:ticket_categories,id',
             'quantity' => 'required|integer|min:1|max:5',
+            'payment_method' => 'required|string|in:qris,virtual_account,e_wallet',
         ];
     }
 }
