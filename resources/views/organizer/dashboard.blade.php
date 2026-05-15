@@ -48,6 +48,73 @@
                 @endforeach
             </div>
 
+            @if (session('status'))
+                <div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-800">
+                    {{ session('status') }}
+                </div>
+            @endif
+
+            {{-- Wallet --}}
+            <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">My Wallet</p>
+                            <p class="mt-3 text-4xl font-bold text-gray-900">Rp {{ number_format($wallet['current_balance'], 0, ',', '.') }}</p>
+                            <p class="mt-2 text-sm text-gray-500">Current balance after {{ $wallet['platform_fee_percentage'] }}% platform fee and pending withdrawals.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'request-withdrawal')">
+                                Request Withdrawal
+                            </x-primary-button>
+                            <x-secondary-button type="button" onclick="window.location='{{ route('organizer.withdrawals.index') }}'">
+                                History
+                            </x-secondary-button>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                        <div class="rounded-lg bg-gray-50 p-4">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Gross Sales</p>
+                            <p class="mt-2 font-bold text-gray-900">Rp {{ number_format($wallet['gross_revenue'], 0, ',', '.') }}</p>
+                        </div>
+                        <div class="rounded-lg bg-gray-50 p-4">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Platform Fee</p>
+                            <p class="mt-2 font-bold text-gray-900">Rp {{ number_format($wallet['platform_fee_amount'], 0, ',', '.') }}</p>
+                        </div>
+                        <div class="rounded-lg bg-gray-50 p-4">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">Pending/Paid</p>
+                            <p class="mt-2 font-bold text-gray-900">Rp {{ number_format($wallet['reserved_withdrawals'], 0, ',', '.') }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                        <h3 class="font-semibold text-gray-800">Recent Withdrawals</h3>
+                        <a href="{{ route('organizer.withdrawals.index') }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">View all</a>
+                    </div>
+                    @forelse($recentWithdrawals as $withdrawal)
+                        @php
+                            $statusClass = match($withdrawal->status) {
+                                'completed' => 'bg-emerald-100 text-emerald-700',
+                                'rejected' => 'bg-red-100 text-red-700',
+                                default => 'bg-amber-100 text-amber-700',
+                            };
+                        @endphp
+                        <div class="px-6 py-4 border-b border-gray-50 last:border-0">
+                            <div class="flex items-center justify-between gap-3">
+                                <p class="font-semibold text-gray-900">Rp {{ number_format($withdrawal->amount, 0, ',', '.') }}</p>
+                                <span class="text-xs font-semibold px-2.5 py-1 rounded-full {{ $statusClass }} capitalize">{{ $withdrawal->status }}</span>
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">{{ $withdrawal->created_at->format('d M Y, H:i') }}</p>
+                        </div>
+                    @empty
+                        <div class="px-6 py-8 text-center text-gray-400 text-sm">No withdrawal requests yet.</div>
+                    @endforelse
+                </div>
+            </div>
+
             {{-- Recent Events --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
@@ -90,4 +157,14 @@
 
         </div>
     </div>
+
+    <x-modal name="request-withdrawal" :show="$errors->any()" focusable>
+        <div class="p-6">
+            <h3 class="text-lg font-semibold text-gray-900">Request Withdrawal</h3>
+            <p class="mt-1 text-sm text-gray-500">Submit your bank details for a manual payout review.</p>
+            <div class="mt-6">
+                @include('organizer.withdrawals._request-form', ['wallet' => $wallet])
+            </div>
+        </div>
+    </x-modal>
 </x-app-layout>

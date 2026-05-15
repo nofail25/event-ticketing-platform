@@ -35,12 +35,20 @@
                             <svg class="w-4 h-4 me-1.5 inline-block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 14h6m-6-4h6M5 6h14M7 6v14l5-2 5 2V6"/></svg>
                             Transactions
                         </x-nav-link>
+                        <x-nav-link :href="route('admin.withdrawals.index')" :active="request()->routeIs('admin.withdrawals.*')">
+                            <svg class="w-4 h-4 me-1.5 inline-block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a5 5 0 00-10 0v2M5 9h14l-1 11H6L5 9zm7 4v4"/></svg>
+                            Withdrawals
+                        </x-nav-link>
                     @endrole
 
                     @role('Event Organizer')
                         <x-nav-link :href="route('organizer.events.index')" :active="request()->routeIs('organizer.events.*')">
                             <svg class="w-4 h-4 me-1.5 inline-block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                             My Events
+                        </x-nav-link>
+                        <x-nav-link :href="route('organizer.withdrawals.index')" :active="request()->routeIs('organizer.withdrawals.*')">
+                            <svg class="w-4 h-4 me-1.5 inline-block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a5 5 0 00-10 0v2M5 9h14l-1 11H6L5 9zm7 4v4"/></svg>
+                            Withdrawals
                         </x-nav-link>
                     @endrole
 
@@ -142,11 +150,17 @@
                 <x-responsive-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">
                     Transactions
                 </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.withdrawals.index')" :active="request()->routeIs('admin.withdrawals.*')">
+                    Withdrawals
+                </x-responsive-nav-link>
             @endrole
 
             @role('Event Organizer')
-                <x-responsive-nav-link :href="route('organizer.dashboard')" :active="request()->routeIs('organizer.*')">
+                <x-responsive-nav-link :href="route('organizer.events.index')" :active="request()->routeIs('organizer.events.*')">
                     My Events
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('organizer.withdrawals.index')" :active="request()->routeIs('organizer.withdrawals.*')">
+                    Withdrawals
                 </x-responsive-nav-link>
             @endrole
 

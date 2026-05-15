@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Order;
 use App\Models\User;
+use App\Models\Withdrawal;
 
 class AdminDashboardController extends Controller
 {
@@ -17,6 +18,8 @@ class AdminDashboardController extends Controller
             'total_orders' => Order::count(),
             'total_pending_events' => Event::where('status', 'pending')->count(),
             'total_revenue' => Order::where('payment_status', 'paid')->sum('total_amount'),
+            'pending_withdrawals' => Withdrawal::where('status', 'pending')->count(),
+            'completed_withdrawals_amount' => Withdrawal::where('status', 'completed')->sum('amount'),
         ];
 
         return view('admin.dashboard', compact('stats'));

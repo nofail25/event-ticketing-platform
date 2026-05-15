@@ -16,6 +16,7 @@ use App\Http\Controllers\TicketCategoryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ScannerController;
+use App\Http\Controllers\WithdrawalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,6 +64,8 @@ Route::middleware(['auth', 'verified', 'role:Super Admin'])
         Route::get('/events', [AdminEventController::class, 'index'])->name('events.index');
         Route::patch('/events/{event}/approve', [AdminEventController::class, 'approve'])->name('events.approve');
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+        Route::get('/withdrawals', [WithdrawalController::class, 'index'])->name('withdrawals.index');
+        Route::patch('/withdrawals/{withdrawal}/complete', [WithdrawalController::class, 'complete'])->name('withdrawals.complete');
         Route::resource('roles', AdminRoleController::class);
     });
 
@@ -76,6 +79,8 @@ Route::middleware(['auth', 'verified', 'role:Event Organizer'])
     ->name('organizer.')
     ->group(function () {
         Route::get('/dashboard', [OrganizerDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/withdrawals', [WithdrawalController::class, 'organizerIndex'])->name('withdrawals.index');
+        Route::post('/withdrawals', [WithdrawalController::class, 'store'])->name('withdrawals.store');
         Route::resource('events', EventController::class);
         Route::resource('events.ticket-categories', TicketCategoryController::class)->except(['index', 'show']);
     });

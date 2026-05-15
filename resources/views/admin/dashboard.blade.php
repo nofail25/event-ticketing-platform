@@ -47,7 +47,7 @@
                 </a>
             </div>
 
-            <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
                 <a href="{{ route('admin.users.index') }}" class="rounded-lg border border-gray-100 bg-white p-5 shadow-sm transition hover:border-indigo-200 hover:shadow-md">
                     <p class="font-semibold text-gray-900">Manage Users</p>
                     <p class="mt-1 text-sm text-gray-500">Review names, emails, roles, and join dates.</p>
@@ -61,6 +61,11 @@
                 <a href="{{ route('admin.orders.index') }}" class="rounded-lg border border-gray-100 bg-white p-5 shadow-sm transition hover:border-indigo-200 hover:shadow-md">
                     <p class="font-semibold text-gray-900">Transactions</p>
                     <p class="mt-1 text-sm text-gray-500">Audit global invoice and payment activity.</p>
+                </a>
+
+                <a href="{{ route('admin.withdrawals.index') }}" class="rounded-lg border border-emerald-100 bg-emerald-50 p-5 shadow-sm transition hover:border-emerald-200 hover:shadow-md">
+                    <p class="font-semibold text-emerald-900">Withdrawals</p>
+                    <p class="mt-1 text-sm text-emerald-700">{{ number_format($stats['pending_withdrawals']) }} pending payout request(s).</p>
                 </a>
             </div>
         </div>
