@@ -217,9 +217,7 @@
 
                                         <!-- Availability -->
                                         <div class="mb-4">
-                                            @php
-                                                $available = $category->quota - $category->ticketDetails->count();
-                                            @endphp
+                                            @php($available = $category->quota - $category->ticketDetails->count())
                                             @if($available > 0)
                                                 <p class="text-sm text-green-600 font-semibold">
                                                     ✓ {{ $available }} tickets available
