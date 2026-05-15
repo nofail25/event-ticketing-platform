@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\Order;
 use App\Models\TicketCategory;
+use App\Models\User;
+use App\Notifications\OrderPaid;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -16,12 +18,13 @@ class TicketOrderService
      * @param int $quantity
      * @param int $userId
      * @param string $paymentMethod
+     * @param string $paymentChannel
      * @return Order
      * @throws \Exception
      */
-    public function processOrder(int $ticketCategoryId, int $quantity, int $userId, string $paymentMethod): Order
+    public function processOrder(int $ticketCategoryId, int $quantity, int $userId, string $paymentMethod, string $paymentChannel): Order
     {
-        return DB::transaction(function () use ($ticketCategoryId, $quantity, $userId, $paymentMethod) {
+        return DB::transaction(function () use ($ticketCategoryId, $quantity, $userId, $paymentMethod, $paymentChannel) {
             // Fetch the ticket category with its event
             $ticketCategory = TicketCategory::with('event')
                 ->lockForUpdate()
@@ -50,6 +53,7 @@ class TicketOrderService
                 'total_amount' => $totalAmount,
                 'payment_status' => 'paid', // Simulated as paid
                 'payment_method' => $paymentMethod,
+                'payment_channel' => $paymentChannel,
                 'platform_fee' => $platformFee,
             ]);
 
@@ -64,6 +68,12 @@ class TicketOrderService
 
             // Decrement the quota
             $ticketCategory->decrement('quota', $quantity);
+
+            // Send notification to the user
+            $user = User::find($userId);
+            if ($user) {
+                $user->notify(new OrderPaid($order));
+            }
 
             return $order;
         });

@@ -54,26 +54,33 @@
                 @endforeach
             </div>
 
+            {{-- Notifications Section --}}
+            @if($notifications->count() > 0)
+            <div>
+                <div class="mb-4 flex items-center justify-between">
+                    <h2 class="text-2xl font-bold text-gray-900">Notifikasi Terbaru</h2>
+                    <a href="{{ route('notifications.index') }}" class="text-sm font-medium text-blue-600 hover:text-blue-700">
+                        Lihat semua →
+                    </a>
+                </div>
+                <x-card class="p-6">
+                    <x-notifications :notifications="$notifications" />
+                </x-card>
+            </div>
+            @endif
+
             {{-- Recent Orders --}}
             <x-card>
                 <div class="px-6 py-4 border-b border-gray-100">
                     <h3 class="font-semibold text-gray-800">Recent Orders</h3>
                 </div>
                 @forelse($recentOrders as $order)
-                @php
-                    $paymentMethodLabel = match($order->payment_method) {
-                        'qris' => 'QRIS',
-                        'virtual_account' => 'Virtual Account',
-                        'e_wallet' => 'E-Wallet',
-                        default => 'Payment',
-                    };
-                @endphp
                 <div class="px-6 py-4 flex items-center justify-between border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
                     <div>
                         <p class="font-medium text-gray-800 font-mono text-sm">{{ $order->invoice_number }}</p>
                         <p class="text-xs text-gray-500 mt-0.5">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</p>
                         @if($order->payment_method)
-                            <p class="text-xs font-semibold text-blue-700 mt-1">Paid via {{ $paymentMethodLabel }}</p>
+                            <p class="text-xs font-semibold text-blue-700 mt-1">Paid via {{ $order->payment_display_label }}</p>
                         @endif
                     </div>
                     @php
@@ -180,15 +187,7 @@
                                             <p class="font-semibold text-white mb-1">{{ $item['order']->invoice_number }}</p>
                                             <p>Purchased: {{ $item['order']->created_at->format('M d, Y') }}</p>
                                             @if($item['order']->payment_method)
-                                                @php
-                                                    $ticketPaymentMethodLabel = match($item['order']->payment_method) {
-                                                        'qris' => 'QRIS',
-                                                        'virtual_account' => 'Virtual Account',
-                                                        'e_wallet' => 'E-Wallet',
-                                                        default => 'Payment',
-                                                    };
-                                                @endphp
-                                                <p class="mt-1">Paid via {{ $ticketPaymentMethodLabel }}</p>
+                                                <p class="mt-1">Paid via {{ $item['order']->payment_display_label }}</p>
                                             @endif
                                         </div>
                                     </div>

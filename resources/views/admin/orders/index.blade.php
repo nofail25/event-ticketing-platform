@@ -20,6 +20,7 @@
                                 <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Event Name</th>
                                 <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Customer Name</th>
                                 <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Total Amount</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Payment Method</th>
                                 <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Payment Status</th>
                             </tr>
                         </thead>
@@ -44,13 +45,14 @@
                                     <td class="px-6 py-4 text-sm text-gray-700">{{ $eventNames ?: 'No event found' }}</td>
                                     <td class="px-6 py-4 text-sm text-gray-700">{{ $order->user?->name ?? 'Unknown Customer' }}</td>
                                     <td class="px-6 py-4 text-sm font-semibold text-gray-900">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-700">{{ $order->payment_method ? $order->payment_display_label : '-' }}</td>
                                     <td class="px-6 py-4">
                                         <x-badge :color="$paymentColor" class="capitalize">{{ $order->payment_status }}</x-badge>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-6 py-12 text-center text-sm text-gray-500">No transactions found.</td>
+                                    <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-500">No transactions found.</td>
                                 </tr>
                             @endforelse
                         </tbody>

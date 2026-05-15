@@ -46,10 +46,11 @@ class CheckoutController extends Controller
         $ticketCategoryId = $validated['ticket_category_id'];
         $quantity = $validated['quantity'];
         $paymentMethod = $validated['payment_method'];
+        $paymentChannel = $validated['payment_channel'];
         $userId = Auth::id();
 
         try {
-            $orderService->processOrder($ticketCategoryId, $quantity, $userId, $paymentMethod);
+            $orderService->processOrder($ticketCategoryId, $quantity, $userId, $paymentMethod, $paymentChannel);
 
             return redirect()
                 ->route('customer.dashboard')

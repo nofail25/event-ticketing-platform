@@ -76,8 +76,31 @@
             x-data="{
                 quantity: {{ (int) old('quantity', 1) }},
                 selectedPaymentMethod: @js(old('payment_method', 'qris')),
+                selectedPaymentChannel: @js(old('payment_channel')),
+                paymentChannels: {
+                    qris: [
+                        { value: 'qris_bca_mobile', label: 'BCA Mobile', description: 'Scan QRIS dari m-BCA' },
+                        { value: 'qris_gopay', label: 'GoPay QRIS', description: 'Scan QRIS dari GoPay' },
+                        { value: 'qris_shopeepay', label: 'ShopeePay QRIS', description: 'Scan QRIS dari ShopeePay' }
+                    ],
+                    virtual_account: [
+                        { value: 'va_bca', label: 'BCA', description: 'Virtual Account BCA' },
+                        { value: 'va_mandiri', label: 'Mandiri', description: 'Virtual Account Mandiri' },
+                        { value: 'va_bri', label: 'BRI', description: 'Virtual Account BRI' },
+                        { value: 'va_bni', label: 'BNI', description: 'Virtual Account BNI' }
+                    ],
+                    e_wallet: [
+                        { value: 'wallet_dana', label: 'DANA', description: 'Bayar dengan saldo DANA' },
+                        { value: 'wallet_gopay', label: 'GoPay', description: 'Bayar dengan saldo GoPay' },
+                        { value: 'wallet_ovo', label: 'OVO', description: 'Bayar dengan saldo OVO' },
+                        { value: 'wallet_shopeepay', label: 'ShopeePay', description: 'Bayar dengan saldo ShopeePay' }
+                    ]
+                },
                 platformFee: 5000,
                 pricePerTicket: {{ (float) $ticketCategory->price }},
+                init() {
+                    this.syncPaymentChannel();
+                },
                 get subtotal() {
                     return this.pricePerTicket * (Number(this.quantity) || 0);
                 },
@@ -99,6 +122,27 @@
                     };
 
                     return labels[this.selectedPaymentMethod] || this.selectedPaymentMethod;
+                },
+                paymentChannelLabel() {
+                    const selectedChannel = this.paymentChannels[this.selectedPaymentMethod]
+                        ?.find((channel) => channel.value === this.selectedPaymentChannel);
+
+                    return selectedChannel?.label || 'Select option';
+                },
+                paymentDisplayLabel() {
+                    return this.paymentLabel() + ' - ' + this.paymentChannelLabel();
+                },
+                selectPaymentMethod(method) {
+                    this.selectedPaymentMethod = method;
+                    this.selectedPaymentChannel = this.paymentChannels[method]?.[0]?.value || '';
+                },
+                syncPaymentChannel() {
+                    const channels = this.paymentChannels[this.selectedPaymentMethod] || [];
+                    const selectedStillAvailable = channels.some((channel) => channel.value === this.selectedPaymentChannel);
+
+                    if (! selectedStillAvailable) {
+                        this.selectedPaymentChannel = channels[0]?.value || '';
+                    }
                 }
             }"
         >
@@ -142,6 +186,7 @@
 
                             <input type="hidden" name="ticket_category_id" value="{{ $ticketCategory->id }}">
                             <input type="hidden" name="payment_method" x-model="selectedPaymentMethod">
+                            <input type="hidden" name="payment_channel" x-model="selectedPaymentChannel">
 
                             <div>
                                 <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">
@@ -180,7 +225,7 @@
                                         type="button"
                                         class="text-left rounded-lg border p-4 transition shadow-sm hover:border-blue-300 hover:bg-blue-50/60"
                                         :class="selectedPaymentMethod === 'qris' ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-100' : 'border-gray-200 bg-white'"
-                                        @click="selectedPaymentMethod = 'qris'"
+                                        @click="selectPaymentMethod('qris')"
                                     >
                                         <span class="text-2xl" aria-hidden="true">&#x1F4F1;</span>
                                         <span class="block font-bold text-gray-900 mt-3">QRIS</span>
@@ -191,7 +236,7 @@
                                         type="button"
                                         class="text-left rounded-lg border p-4 transition shadow-sm hover:border-blue-300 hover:bg-blue-50/60"
                                         :class="selectedPaymentMethod === 'virtual_account' ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-100' : 'border-gray-200 bg-white'"
-                                        @click="selectedPaymentMethod = 'virtual_account'"
+                                        @click="selectPaymentMethod('virtual_account')"
                                     >
                                         <span class="text-2xl" aria-hidden="true">&#x1F3E6;</span>
                                         <span class="block font-bold text-gray-900 mt-3">Virtual Account</span>
@@ -202,7 +247,7 @@
                                         type="button"
                                         class="text-left rounded-lg border p-4 transition shadow-sm hover:border-blue-300 hover:bg-blue-50/60"
                                         :class="selectedPaymentMethod === 'e_wallet' ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-100' : 'border-gray-200 bg-white'"
-                                        @click="selectedPaymentMethod = 'e_wallet'"
+                                        @click="selectPaymentMethod('e_wallet')"
                                     >
                                         <span class="text-2xl" aria-hidden="true">&#x1F4B3;</span>
                                         <span class="block font-bold text-gray-900 mt-3">E-Wallet</span>
@@ -210,6 +255,31 @@
                                     </button>
                                 </div>
                                 @error('payment_method')
+                                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- Payment Channel Selection -->
+                            <div class="space-y-3">
+                                <div>
+                                    <h2 class="text-lg font-bold text-gray-900">Select Payment Option</h2>
+                                    <p class="text-sm text-gray-600 mt-1" x-text="'Choose an option for ' + paymentLabel() + '.'"></p>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <template x-for="channel in paymentChannels[selectedPaymentMethod]" :key="channel.value">
+                                        <button
+                                            type="button"
+                                            class="text-left rounded-lg border p-4 transition shadow-sm hover:border-blue-300 hover:bg-blue-50/60"
+                                            :class="selectedPaymentChannel === channel.value ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-100' : 'border-gray-200 bg-white'"
+                                            @click="selectedPaymentChannel = channel.value"
+                                        >
+                                            <span class="block font-bold text-gray-900" x-text="channel.label"></span>
+                                            <span class="block text-xs text-gray-500 mt-1" x-text="channel.description"></span>
+                                        </button>
+                                    </template>
+                                </div>
+                                @error('payment_channel')
                                     <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -245,7 +315,7 @@
                             <button
                                 type="submit"
                                 class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition text-lg"
-                                x-text="'Pay with ' + paymentLabel().toUpperCase() + ' (Simulated)'"
+                                x-text="'Pay with ' + paymentDisplayLabel().toUpperCase() + ' (Simulated)'"
                             ></button>
 
                             <a
@@ -284,7 +354,7 @@
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Payment:</span>
-                                <span class="font-semibold text-gray-900" x-text="paymentLabel()"></span>
+                                <span class="font-semibold text-gray-900 text-right" x-text="paymentDisplayLabel()"></span>
                             </div>
                             <div class="border-t pt-3 flex justify-between">
                                 <span class="text-lg font-bold text-gray-900">Grand Total:</span>

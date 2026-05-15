@@ -15,6 +15,7 @@ class Order extends Model
         'total_amount',
         'payment_status',
         'payment_method',
+        'payment_channel',
         'platform_fee',
     ];
 
@@ -40,5 +41,42 @@ class Order extends Model
     public function ticketDetails()
     {
         return $this->hasMany(TicketDetail::class);
+    }
+
+    public function getPaymentMethodLabelAttribute(): string
+    {
+        return match ($this->payment_method) {
+            'qris' => 'QRIS',
+            'virtual_account' => 'Virtual Account',
+            'e_wallet' => 'E-Wallet',
+            default => 'Payment',
+        };
+    }
+
+    public function getPaymentChannelLabelAttribute(): ?string
+    {
+        return match ($this->payment_channel) {
+            'qris_bca_mobile' => 'BCA Mobile',
+            'qris_gopay' => 'GoPay QRIS',
+            'qris_shopeepay' => 'ShopeePay QRIS',
+            'va_bca' => 'BCA',
+            'va_mandiri' => 'Mandiri',
+            'va_bri' => 'BRI',
+            'va_bni' => 'BNI',
+            'wallet_dana' => 'DANA',
+            'wallet_gopay' => 'GoPay',
+            'wallet_ovo' => 'OVO',
+            'wallet_shopeepay' => 'ShopeePay',
+            default => null,
+        };
+    }
+
+    public function getPaymentDisplayLabelAttribute(): string
+    {
+        if (! $this->payment_channel_label) {
+            return $this->payment_method_label;
+        }
+
+        return "{$this->payment_method_label} - {$this->payment_channel_label}";
     }
 }

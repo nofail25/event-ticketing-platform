@@ -28,6 +28,9 @@ class CustomerDashboardController extends Controller
             ->latest()
             ->get();
 
-        return view('customer.dashboard', compact('stats', 'recentOrders'));
+        // Fetch recent notifications
+        $notifications = $user->notifications()->latest()->get();
+
+        return view('customer.dashboard', compact('stats', 'recentOrders', 'notifications'));
     }
 }

@@ -3,9 +3,30 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ProcessCheckoutRequest extends FormRequest
 {
+    private const PAYMENT_CHANNELS = [
+        'qris' => [
+            'qris_bca_mobile',
+            'qris_gopay',
+            'qris_shopeepay',
+        ],
+        'virtual_account' => [
+            'va_bca',
+            'va_mandiri',
+            'va_bri',
+            'va_bni',
+        ],
+        'e_wallet' => [
+            'wallet_dana',
+            'wallet_gopay',
+            'wallet_ovo',
+            'wallet_shopeepay',
+        ],
+    ];
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -24,7 +45,19 @@ class ProcessCheckoutRequest extends FormRequest
         return [
             'ticket_category_id' => 'required|exists:ticket_categories,id',
             'quantity' => 'required|integer|min:1|max:5',
-            'payment_method' => 'required|string|in:qris,virtual_account,e_wallet',
+            'payment_method' => ['required', 'string', Rule::in(array_keys(self::PAYMENT_CHANNELS))],
+            'payment_channel' => [
+                'required',
+                'string',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    $method = $this->input('payment_method');
+                    $allowedChannels = self::PAYMENT_CHANNELS[$method] ?? [];
+
+                    if (! in_array($value, $allowedChannels, true)) {
+                        $fail('The selected payment option is not available for this payment method.');
+                    }
+                },
+            ],
         ];
     }
 }
