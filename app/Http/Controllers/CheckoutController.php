@@ -50,11 +50,19 @@ class CheckoutController extends Controller
         $userId = Auth::id();
 
         try {
-            $orderService->processOrder($ticketCategoryId, $quantity, $userId, $paymentMethod, $paymentChannel);
+            $order = $orderService->processOrder($ticketCategoryId, $quantity, $userId, $paymentMethod, $paymentChannel);
+            $order->load('ticketDetails.ticketCategory.event');
+
+            $event = $order->ticketDetails->first()?->ticketCategory?->event;
 
             return redirect()
-                ->route('customer.dashboard')
-                ->with('success', "Successfully purchased {$quantity} ticket(s)! Your e-tickets are ready.");
+                ->route('events.show', $event)
+                ->with('payment_success', [
+                    'title' => 'Pembayaran Berhasil',
+                    'message' => "{$quantity} tiket Anda sudah aktif dan siap digunakan.",
+                    'invoice_number' => $order->invoice_number,
+                    'ticket_url' => route('customer.dashboard') . '#my-tickets',
+                ]);
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withErrors(['quantity' => $e->getMessage()])

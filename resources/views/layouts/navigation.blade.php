@@ -85,21 +85,6 @@
                     {{ $roleConfig['label'] }}
                 </span>
 
-                {{-- Notifications Bell --}}
-                <a href="{{ route('notifications.index') }}" class="relative inline-flex items-center justify-center p-2 text-indigo-100 hover:text-white hover:bg-white/10 rounded-lg transition duration-150 ease-in-out" title="Notifications">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                    </svg>
-                    @php
-                        $unreadCount = Auth::user()->unreadNotifications->count();
-                    @endphp
-                    @if($unreadCount > 0)
-                    <span class="absolute top-1 right-1 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
-                        {{ $unreadCount < 100 ? $unreadCount : '99+' }}
-                    </span>
-                    @endif
-                </a>
-
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center gap-2 px-3 py-2 border border-white/20 text-sm leading-4 font-medium rounded-lg text-white bg-white/10 hover:bg-white/15 focus:outline-none transition ease-in-out duration-150">

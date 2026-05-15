@@ -101,6 +101,35 @@
 
         <!-- Event Detail Content -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            @if(session('payment_success'))
+                @php($paymentSuccess = session('payment_success'))
+                <div class="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 p-5 shadow-sm">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0 rounded-full bg-emerald-600 p-2 text-white">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="text-base font-bold text-emerald-950">{{ $paymentSuccess['title'] ?? 'Pembayaran Berhasil' }}</h2>
+                                <p class="mt-1 text-sm text-emerald-800">{{ $paymentSuccess['message'] ?? 'Tiket Anda sudah aktif dan siap digunakan.' }}</p>
+                                @if(! empty($paymentSuccess['invoice_number']))
+                                    <p class="mt-2 text-xs font-semibold text-emerald-700">Invoice: {{ $paymentSuccess['invoice_number'] }}</p>
+                                @endif
+                            </div>
+                        </div>
+
+                        <a
+                            href="{{ $paymentSuccess['ticket_url'] ?? route('customer.dashboard') }}"
+                            class="inline-flex items-center justify-center rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-800"
+                        >
+                            Lihat Tiket
+                        </a>
+                    </div>
+                </div>
+            @endif
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Main Content -->
                 <div class="lg:col-span-2">

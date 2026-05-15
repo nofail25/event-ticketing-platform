@@ -67,7 +67,7 @@
                     @php
                         $data = $notification->data;
                         $isRead = $notification->read_at !== null;
-                        $isOrderPaid = $data['type'] ?? null === 'order_paid';
+                        $isOrderPaid = ($data['type'] ?? null) === 'order_paid';
                     @endphp
                     
                     <div class="relative rounded-lg border {{ $isRead ? 'border-gray-200 bg-white' : 'border-blue-200 bg-blue-50' }} p-6 transition-all hover:shadow-md">
@@ -111,6 +111,11 @@
                                                 <p class="font-bold">Rp {{ number_format($data['total_amount'] ?? 0, 0, ',', '.') }}</p>
                                             </div>
                                         </div>
+                                        @if(! empty($data['ticket_url']))
+                                            <a href="{{ $data['ticket_url'] }}" class="mt-4 inline-flex items-center rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800">
+                                                Lihat Tiket
+                                            </a>
+                                        @endif
                                     </div>
                                 </div>
                             @else

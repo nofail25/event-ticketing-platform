@@ -48,7 +48,7 @@ class OrderPaid extends Notification implements ShouldQueue
                 return $mail->line('Acara: ' . $event->title);
             })
             ->line('Status Pembayaran: **Lunas**')
-            ->action('Lihat E-Tiket Anda', route('customer.dashboard'))
+            ->action('Lihat E-Tiket Anda', route('customer.dashboard') . '#my-tickets')
             ->line('E-tiket Anda sudah siap untuk digunakan. Silakan kunjungi dashboard untuk melihat detail tiket dan barcode.')
             ->line('Terimakasih telah membeli tiket bersama kami!')
             ->salutation('Salam hangat,');
@@ -71,6 +71,7 @@ class OrderPaid extends Notification implements ShouldQueue
             'total_amount' => $this->order->total_amount,
             'event_title' => $event?->title,
             'message' => "Pembayaran tiket berhasil! {$ticketCount} tiket untuk {$event?->title} sudah siap digunakan.",
+            'ticket_url' => route('customer.dashboard') . '#my-tickets',
             'type' => 'order_paid',
         ];
     }

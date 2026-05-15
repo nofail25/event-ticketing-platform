@@ -10,7 +10,7 @@
         @php
             $data = $notification->data;
             $isRead = $notification->read_at !== null;
-            $isOrderPaid = $data['type'] ?? null === 'order_paid';
+            $isOrderPaid = ($data['type'] ?? null) === 'order_paid';
         @endphp
         
         <div class="relative rounded-lg border {{ $isRead ? 'border-gray-200 bg-white' : 'border-blue-200 bg-blue-50' }} p-4 transition-all hover:shadow-sm">
@@ -45,6 +45,11 @@
                                 </span>
                             </div>
                             <p class="text-gray-500 text-xs mt-2">{{ $notification->created_at->diffForHumans() }}</p>
+                            @if(! empty($data['ticket_url']))
+                                <a href="{{ $data['ticket_url'] }}" class="mt-3 inline-flex text-sm font-semibold text-blue-600 hover:text-blue-700">
+                                    Lihat Tiket
+                                </a>
+                            @endif
                         </div>
                     </div>
                 @else

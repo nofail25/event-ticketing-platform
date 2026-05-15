@@ -54,21 +54,6 @@
                 @endforeach
             </div>
 
-            {{-- Notifications Section --}}
-            @if($notifications->count() > 0)
-            <div>
-                <div class="mb-4 flex items-center justify-between">
-                    <h2 class="text-2xl font-bold text-gray-900">Notifikasi Terbaru</h2>
-                    <a href="{{ route('notifications.index') }}" class="text-sm font-medium text-blue-600 hover:text-blue-700">
-                        Lihat semua →
-                    </a>
-                </div>
-                <x-card class="p-6">
-                    <x-notifications :notifications="$notifications" />
-                </x-card>
-            </div>
-            @endif
-
             {{-- Recent Orders --}}
             <x-card>
                 <div class="px-6 py-4 border-b border-gray-100">
@@ -104,7 +89,7 @@
             </x-card>
 
             {{-- My E-Tickets Section --}}
-            <div>
+            <div id="my-tickets">
                 <div class="mb-6">
                     <h2 class="text-2xl font-bold text-gray-900">My E-Tickets</h2>
                     <p class="text-gray-600 text-sm mt-1">Your digital tickets for upcoming events</p>
