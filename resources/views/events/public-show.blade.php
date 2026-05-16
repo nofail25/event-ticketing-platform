@@ -24,7 +24,9 @@
 
                 <main class="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
                     @if(session('payment_success'))
-                        @php($paymentSuccess = session('payment_success'))
+                        @php
+                            $paymentSuccess = session('payment_success');
+                        @endphp
                         <div class="mb-8 rounded-3xl border border-emerald-300/30 bg-emerald-400/10 p-5 shadow-2xl shadow-emerald-950/20 backdrop-blur-xl">
                             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                 <div class="flex items-start gap-4">
@@ -115,7 +117,9 @@
                                 @if($event->ticketCategories->count() > 0)
                                     <div class="space-y-4">
                                         @foreach($event->ticketCategories as $category)
-                                            @php($available = $category->quota - $category->ticketDetails->count())
+                                            @php
+                                                $available = $category->quota - $category->ticketDetails->count();
+                                            @endphp
                                             <div class="rounded-3xl border border-white/10 bg-slate-950/60 p-4 transition hover:border-cyan-300/30 hover:bg-cyan-300/5">
                                                 <div class="flex items-start justify-between gap-3">
                                                     <div>
