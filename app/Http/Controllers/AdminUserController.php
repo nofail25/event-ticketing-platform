@@ -36,8 +36,9 @@ class AdminUserController extends Controller
     {
         $roles = Role::latest()->get();
         $userRole = $user->roles()->first();
+        $organizers = User::role('Event Organizer')->get();
 
-        return view('admin.users.edit', compact('user', 'roles', 'userRole'));
+        return view('admin.users.edit', compact('user', 'roles', 'userRole', 'organizers'));
     }
 
     /**
@@ -47,10 +48,18 @@ class AdminUserController extends Controller
     {
         $validated = $request->validate([
             'role' => 'required|string|exists:roles,name',
+            'organizer_id' => 'nullable|exists:users,id',
         ]);
 
         // Sync the user's role (replaces existing roles)
         $user->syncRoles($validated['role']);
+
+        // Only save organizer_id if role is Gate Scanner
+        if ($validated['role'] === 'Gate Scanner') {
+            $user->update(['organizer_id' => $validated['organizer_id'] ?? null]);
+        } else {
+            $user->update(['organizer_id' => null]);
+        }
 
         return redirect()->route('admin.users.index')
             ->with('success', "User role updated to '{$validated['role']}'.");

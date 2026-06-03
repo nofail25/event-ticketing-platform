@@ -45,7 +45,14 @@ class ScannerController extends Controller
                 ->with('scan_message', "Ticket Already Scanned at {$scannedAt}");
         }
 
-        // Logic Check 3: Valid ticket - mark as scanned
+        // Logic Check 3: Check if Scanner is authorized for this event
+        if (auth()->user()->organizer_id && $ticket->ticketCategory->event->organizer_id !== auth()->user()->organizer_id) {
+            return redirect()->back()
+                ->withErrors(['scan_result' => 'UNAUTHORIZED'])
+                ->with('scan_message', 'Invalid Ticket / Not Authorized for this Event');
+        }
+
+        // Logic Check 4: Valid ticket - mark as scanned
         $eventName = $ticket->ticketCategory->event->title;
         $categoryName = $ticket->ticketCategory->name;
         $customerName = $ticket->order->user->name;

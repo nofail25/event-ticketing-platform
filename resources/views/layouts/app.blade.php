@@ -9,39 +9,67 @@
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     @php
-        $isCustomerExperience = Auth::check()
-            && Auth::user()->hasRole('Customer')
-            && request()->routeIs('customer.*');
+        $isAdmin = Auth::check() && Auth::user()->hasRole('Super Admin');
+        $isOrganizer = Auth::check() && Auth::user()->hasRole('Event Organizer');
+        $isCustomer = Auth::check() && Auth::user()->hasRole('Customer');
+        $isGateScanner = Auth::check() && Auth::user()->hasRole('Gate Scanner');
+
+        $isBackend = $isAdmin || $isOrganizer || $isGateScanner;
     @endphp
-    <body class="font-sans antialiased {{ $isCustomerExperience ? 'bg-slate-950 text-slate-100' : '' }}">
-        <div class="{{ $isCustomerExperience ? 'dark-page-shell' : 'min-h-screen bg-gray-100' }} flex flex-col">
-            @include('layouts.navigation')
+    <body class="font-sans antialiased bg-slate-50 text-slate-800">
+        @if($isBackend)
+            <div class="min-h-screen flex">
+                @include('layouts.sidebar')
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="{{ $isCustomerExperience ? 'dark-page-content border-b border-white/10 bg-slate-950/55 shadow-2xl shadow-cyan-950/20 backdrop-blur-xl' : 'bg-white shadow' }}">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
+                <!-- Main Content -->
+                <div class="flex-1 flex flex-col min-h-screen">
+                    <!-- Page Heading -->
+                    @isset($header)
+                        <header class="bg-white border-b border-slate-200">
+                            <div class="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8">
+                                {{ $header }}
+                            </div>
+                        </header>
+                    @endisset
 
-            <!-- Page Content -->
-            <main class="{{ $isCustomerExperience ? 'dark-page-content' : '' }} flex-1">
-                {{ $slot }}
-            </main>
-
-            <footer class="{{ $isCustomerExperience ? 'dark-page-content border-t border-white/10 bg-slate-950/75 text-slate-400 backdrop-blur-xl' : 'bg-gray-950 text-gray-300' }}">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <p class="text-center text-sm">&copy; 2026 EventTicketing. {{ $isCustomerExperience ? 'Neon access for every experience.' : 'All rights reserved.' }}</p>
+                    <!-- Page Content -->
+                    <main class="p-6 flex-1">
+                        {{ $slot }}
+                    </main>
                 </div>
-            </footer>
-        </div>
+            </div>
+        @else
+            <div class="min-h-screen bg-slate-50 flex flex-col">
+                <x-public-navigation />
+
+                <!-- Page Heading -->
+                @isset($header)
+                    <header class="bg-white border-b border-slate-200">
+                        <div class="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8">
+                            {{ $header }}
+                        </div>
+                    </header>
+                @endisset
+
+                <!-- Page Content -->
+                <main class="flex-1">
+                    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                        {{ $slot }}
+                    </div>
+                </main>
+
+                <footer class="bg-white border-t border-slate-200 text-slate-500">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+                        <p class="text-sm">&copy; 2026 EventTicketing. All rights reserved.</p>
+                    </div>
+                </footer>
+            </div>
+        @endif
     </body>
 </html>

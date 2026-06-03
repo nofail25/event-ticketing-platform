@@ -2,19 +2,20 @@
 
 @php
     $colors = [
-        'gray' => 'bg-gray-100 text-gray-800',
-        'red' => 'bg-red-100 text-red-800',
-        'yellow' => 'bg-yellow-100 text-yellow-800',
-        'green' => 'bg-green-100 text-green-800',
-        'blue' => 'bg-blue-100 text-blue-800',
-        'indigo' => 'bg-indigo-100 text-indigo-800',
-        'purple' => 'bg-purple-100 text-purple-800',
-        'pink' => 'bg-pink-100 text-pink-800',
+        'gray' => 'bg-slate-100 text-slate-700',
+        'red' => 'bg-red-50 text-red-700',
+        'yellow' => 'bg-amber-50 text-amber-700',
+        'green' => 'bg-emerald-50 text-emerald-700',
+        'blue' => 'bg-blue-50 text-blue-700',
+        'indigo' => 'bg-indigo-50 text-indigo-700',
+        'purple' => 'bg-violet-50 text-violet-700',
+        'pink' => 'bg-pink-50 text-pink-700',
+        'orange' => 'bg-orange-50 text-orange-700',
     ];
 
     $colorClass = $colors[$color] ?? $colors['gray'];
 @endphp
 
-<span {{ $attributes->merge(['class' => "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {$colorClass}"]) }}>
+<span {{ $attributes->merge(['class' => "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {$colorClass}"]) }}>
     {{ $slot }}
 </span>

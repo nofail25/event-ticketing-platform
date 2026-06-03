@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'organizer_id',
     ];
 
     /**
@@ -66,5 +67,21 @@ class User extends Authenticatable
     public function withdrawals()
     {
         return $this->hasMany(Withdrawal::class);
+    }
+
+    /**
+     * Users (Gate Scanners) assigned to this organizer.
+     */
+    public function scanners()
+    {
+        return $this->hasMany(User::class, 'organizer_id');
+    }
+
+    /**
+     * The organizer this user is assigned to.
+     */
+    public function organizer()
+    {
+        return $this->belongsTo(User::class, 'organizer_id');
     }
 }

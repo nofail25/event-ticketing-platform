@@ -8,252 +8,237 @@
         <title>Checkout - {{ $event->title }}</title>
 
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800,900&display=swap" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800,900&display=swap" rel="stylesheet" />
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <style>
+            [x-cloak] { display: none !important; }
+        </style>
     </head>
-    <body class="font-sans antialiased bg-slate-950 text-slate-100">
-        <div class="dark-page-shell flex min-h-screen flex-col">
-            <div class="dark-page-content">
-                <x-public-navigation :back-href="route('events.show', $event)" back-label="Back to Event" />
+    <body class="font-sans antialiased bg-slate-50 text-slate-900">
+        <div class="page-shell flex min-h-screen flex-col">
+            <div class="page-content">
+                <x-public-navigation />
 
                 <main
-                    class="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12"
+                    class="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12"
                     x-data="{
+                        step: 1,
                         quantity: {{ (int) old('quantity', 1) }},
                         selectedPaymentMethod: @js(old('payment_method', 'qris')),
-                        selectedPaymentChannel: @js(old('payment_channel')),
+                        selectedPaymentChannel: @js(old('payment_channel', 'qris_gopay')),
                         paymentChannels: {
                             qris: [
-                                { value: 'qris_bca_mobile', label: 'BCA Mobile', description: 'Scan QRIS dari m-BCA' },
-                                { value: 'qris_gopay', label: 'GoPay QRIS', description: 'Scan QRIS dari GoPay' },
-                                { value: 'qris_shopeepay', label: 'ShopeePay QRIS', description: 'Scan QRIS dari ShopeePay' }
+                                { value: 'qris_gopay', label: 'GoPay QRIS', description: 'Scan from GoPay app', icon: '📱' },
+                                { value: 'qris_bca', label: 'BCA QRIS', description: 'Scan from m-BCA', icon: '🏦' },
+                                { value: 'qris_shopeepay', label: 'ShopeePay', description: 'Scan from Shopee app', icon: '🛍️' }
                             ],
                             virtual_account: [
-                                { value: 'va_bca', label: 'BCA', description: 'Virtual Account BCA' },
-                                { value: 'va_mandiri', label: 'Mandiri', description: 'Virtual Account Mandiri' },
-                                { value: 'va_bri', label: 'BRI', description: 'Virtual Account BRI' },
-                                { value: 'va_bni', label: 'BNI', description: 'Virtual Account BNI' }
-                            ],
-                            e_wallet: [
-                                { value: 'wallet_dana', label: 'DANA', description: 'Bayar dengan saldo DANA' },
-                                { value: 'wallet_gopay', label: 'GoPay', description: 'Bayar dengan saldo GoPay' },
-                                { value: 'wallet_ovo', label: 'OVO', description: 'Bayar dengan saldo OVO' },
-                                { value: 'wallet_shopeepay', label: 'ShopeePay', description: 'Bayar dengan saldo ShopeePay' }
+                                { value: 'va_bca', label: 'BCA Virtual Account', description: 'Pay via BCA ATM/Mobile', icon: '🏦' },
+                                { value: 'va_mandiri', label: 'Mandiri Virtual Account', description: 'Pay via Livin by Mandiri', icon: '🏦' },
+                                { value: 'va_bni', label: 'BNI Virtual Account', description: 'Pay via BNI Mobile', icon: '🏦' }
                             ]
                         },
                         platformFee: 5000,
                         pricePerTicket: {{ (float) $ticketCategory->price }},
-                        init() { this.syncPaymentChannel(); },
                         get subtotal() { return this.pricePerTicket * (Number(this.quantity) || 0); },
                         get grandTotal() { return this.subtotal + this.platformFee; },
                         formatCurrency(value) {
                             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value || 0);
                         },
                         paymentLabel() {
-                            const labels = { qris: 'QRIS', virtual_account: 'Virtual Account', e_wallet: 'E-Wallet' };
+                            const labels = { qris: 'QRIS', virtual_account: 'Virtual Account' };
                             return labels[this.selectedPaymentMethod] || this.selectedPaymentMethod;
                         },
                         paymentChannelLabel() {
                             const selectedChannel = this.paymentChannels[this.selectedPaymentMethod]?.find((channel) => channel.value === this.selectedPaymentChannel);
                             return selectedChannel?.label || 'Select option';
                         },
-                        paymentDisplayLabel() { return this.paymentLabel() + ' - ' + this.paymentChannelLabel(); },
-                        selectPaymentMethod(method) {
-                            this.selectedPaymentMethod = method;
-                            this.selectedPaymentChannel = this.paymentChannels[method]?.[0]?.value || '';
-                        },
-                        syncPaymentChannel() {
-                            const channels = this.paymentChannels[this.selectedPaymentMethod] || [];
-                            const selectedStillAvailable = channels.some((channel) => channel.value === this.selectedPaymentChannel);
-                            if (! selectedStillAvailable) this.selectedPaymentChannel = channels[0]?.value || '';
-                        }
+                        nextStep() { if(this.step < 3) this.step++; },
+                        prevStep() { if(this.step > 1) this.step--; }
                     }"
                 >
-                    <div class="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                        <div>
-                            <div class="neon-chip mb-4 w-fit">
-                                <span class="h-2 w-2 rounded-full bg-cyan-300 shadow-lg shadow-cyan-300/70"></span>
-                                Secure checkout
+                    <div class="mb-8 text-center">
+                        <div class="inline-flex items-center justify-center space-x-4">
+                            <!-- Progress Bar -->
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors" :class="step >= 1 ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-200 text-slate-500'">1</div>
+                                <div class="w-16 h-1 transition-colors" :class="step >= 2 ? 'bg-indigo-600' : 'bg-slate-200'"></div>
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors" :class="step >= 2 ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-200 text-slate-500'">2</div>
+                                <div class="w-16 h-1 transition-colors" :class="step >= 3 ? 'bg-indigo-600' : 'bg-slate-200'"></div>
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors" :class="step >= 3 ? 'bg-indigo-600 text-white shadow-md' : 'bg-slate-200 text-slate-500'">3</div>
                             </div>
-                            <h1 class="text-4xl font-black tracking-tight text-white sm:text-5xl">Complete your neon pass</h1>
-                            <p class="mt-3 max-w-2xl text-slate-400">Pilih jumlah tiket dan metode pembayaran simulasi dengan alur yang lebih jelas, ringkas, dan responsif.</p>
                         </div>
-                        <a href="{{ route('events.show', $event) }}" class="neon-button-outline w-fit">Cancel order</a>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-8 lg:grid-cols-[1.35fr_0.65fr]">
-                        <section class="neon-card p-6 sm:p-8">
-                            <div class="mb-8 grid gap-4 md:grid-cols-[1fr_auto] md:items-start">
-                                <div>
-                                    <p class="text-xs font-black uppercase tracking-[0.28em] text-fuchsia-200">Event</p>
-                                    <h2 class="mt-3 text-2xl font-black text-white sm:text-3xl">{{ $event->title }}</h2>
-                                    <div class="mt-4 grid gap-3 text-sm text-slate-300 sm:grid-cols-2">
-                                        <p class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">📅 {{ $event->start_time->format('M d, Y \a\t h:i A') }}</p>
-                                        <p class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">📍 {{ $event->location }}</p>
+                    <div class="clean-card bg-white border border-slate-200 shadow-xl overflow-hidden relative">
+                        <form action="{{ route('checkout.store') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="ticket_category_id" value="{{ $ticketCategory->id }}">
+                            <input type="hidden" name="payment_method" x-model="selectedPaymentMethod">
+                            <input type="hidden" name="payment_channel" x-model="selectedPaymentChannel">
+
+                            <!-- Step 1: Ticket Details -->
+                            <div x-show="step === 1" x-transition.opacity.duration.300ms class="p-8 sm:p-12">
+                                <h2 class="text-3xl font-black text-slate-900 text-center mb-2">Ticket Details</h2>
+                                <p class="text-slate-500 text-center mb-10">Review your selection and choose quantity</p>
+                                
+                                <div class="rounded-3xl border border-indigo-100 bg-indigo-50/50 p-6 mb-8 relative overflow-hidden">
+                                    <div class="absolute -right-10 -top-10 opacity-10">
+                                        <svg width="160" height="160" viewBox="0 0 24 24" fill="currentColor" class="text-indigo-600"><path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+                                    </div>
+                                    <div class="relative z-10 flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+                                        <div class="h-24 aspect-video rounded-2xl bg-slate-200 overflow-hidden shrink-0 shadow-sm border border-white">
+                                            @if($event->banner_image)
+                                                <img src="{{ asset('storage/' . $event->banner_image) }}" class="w-full h-full object-cover">
+                                            @endif
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-[10px] font-black uppercase tracking-widest text-indigo-600">{{ $ticketCategory->name }}</p>
+                                            <h3 class="text-xl font-black text-slate-900 mt-1">{{ $event->title }}</h3>
+                                            <p class="text-sm text-slate-600 mt-1 font-medium">{{ $event->start_time->format('D, d M Y • H:i') }}</p>
+                                        </div>
+                                        <div class="text-left sm:text-right w-full sm:w-auto border-t sm:border-t-0 border-slate-200 pt-4 sm:pt-0">
+                                            <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Price per ticket</p>
+                                            <p class="text-2xl font-black text-indigo-600">Rp {{ number_format($ticketCategory->price, 0, ',', '.') }}</p>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-5 text-right">
-                                    <p class="text-xs font-black uppercase tracking-widest text-cyan-200">{{ $ticketCategory->name }}</p>
-                                    <p class="mt-2 text-2xl font-black text-white">Rp {{ number_format($ticketCategory->price, 0, ',', '.') }}</p>
-                                    <p class="mt-1 text-xs text-slate-400">{{ $available }} available</p>
+
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-6 mb-6">
+                                    <div>
+                                        <p class="font-bold text-slate-900">Select Quantity</p>
+                                        <p class="text-sm text-slate-500">Max {{ $maxQuantity }} tickets per transaction</p>
+                                    </div>
+                                    <div class="flex items-center gap-4 bg-slate-50 border border-slate-200 rounded-full p-1">
+                                        <button type="button" @click="if(quantity > 1) quantity--" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-600 hover:text-indigo-600 transition-colors focus:ring-2 focus:ring-indigo-500">-</button>
+                                        <input type="number" name="quantity" x-model.number="quantity" class="w-12 text-center bg-transparent border-none font-black text-xl text-slate-900 focus:ring-0 p-0" readonly>
+                                        <button type="button" @click="if(quantity < {{ $maxQuantity }}) quantity++" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-600 hover:text-indigo-600 transition-colors focus:ring-2 focus:ring-indigo-500">+</button>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-between items-center mt-10">
+                                    <a href="{{ route('events.show', $event) }}" class="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1"><span>&larr;</span> Back to Event</a>
+                                    <button type="button" @click="nextStep()" class="primary-button group">
+                                        Continue to Payment 
+                                        <span class="inline-block transform group-hover:translate-x-1 transition-transform ml-1">→</span>
+                                    </button>
                                 </div>
                             </div>
 
-                            <form action="{{ route('checkout.store') }}" method="POST" class="space-y-8">
-                                @csrf
+                            <!-- Step 2: Payment Method -->
+                            <div x-cloak x-show="step === 2" x-transition.opacity.duration.300ms class="p-8 sm:p-12">
+                                <h2 class="text-3xl font-black text-slate-900 text-center mb-2">Payment Method</h2>
+                                <p class="text-slate-500 text-center mb-10">Select how you'd like to pay (Simulated)</p>
 
-                                <input type="hidden" name="ticket_category_id" value="{{ $ticketCategory->id }}">
-                                <input type="hidden" name="payment_method" x-model="selectedPaymentMethod">
-                                <input type="hidden" name="payment_channel" x-model="selectedPaymentChannel">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                                    <button type="button" 
+                                            @click="selectedPaymentMethod = 'qris'; selectedPaymentChannel = paymentChannels['qris'][0].value"
+                                            class="p-5 rounded-3xl border-2 transition-all flex flex-col items-center text-center group"
+                                            :class="selectedPaymentMethod === 'qris' ? 'border-indigo-500 bg-indigo-50' : 'border-slate-100 hover:border-slate-200'">
+                                        <span class="text-4xl mb-3 transform group-hover:scale-110 transition-transform">📱</span>
+                                        <span class="font-black" :class="selectedPaymentMethod === 'qris' ? 'text-indigo-700' : 'text-slate-900'">QRIS</span>
+                                        <span class="text-xs mt-1" :class="selectedPaymentMethod === 'qris' ? 'text-indigo-500' : 'text-slate-500'">Instant scan</span>
+                                    </button>
 
-                                <div class="rounded-3xl border border-white/10 bg-slate-950/50 p-5">
-                                    <label for="quantity" class="block text-sm font-black uppercase tracking-widest text-cyan-200">
-                                        Ticket Quantity
-                                    </label>
-                                    <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-                                        <select id="quantity" name="quantity" class="dark-select w-full sm:w-48" x-model.number="quantity" required>
-                                            @for($i = 1; $i <= $maxQuantity; $i++)
-                                                <option value="{{ $i }}">{{ $i }} @if($i > 1) Tickets @else Ticket @endif</option>
-                                            @endfor
-                                        </select>
-                                        <p class="text-sm text-slate-400">Max {{ $maxQuantity }} per transaction</p>
-                                    </div>
-                                    @error('quantity')
-                                        <p class="mt-2 text-sm font-bold text-rose-300">{{ $message }}</p>
-                                    @enderror
+                                    <button type="button" 
+                                            @click="selectedPaymentMethod = 'virtual_account'; selectedPaymentChannel = paymentChannels['virtual_account'][0].value"
+                                            class="p-5 rounded-3xl border-2 transition-all flex flex-col items-center text-center group"
+                                            :class="selectedPaymentMethod === 'virtual_account' ? 'border-indigo-500 bg-indigo-50' : 'border-slate-100 hover:border-slate-200'">
+                                        <span class="text-4xl mb-3 transform group-hover:scale-110 transition-transform">🏦</span>
+                                        <span class="font-black" :class="selectedPaymentMethod === 'virtual_account' ? 'text-indigo-700' : 'text-slate-900'">Virtual Account</span>
+                                        <span class="text-xs mt-1" :class="selectedPaymentMethod === 'virtual_account' ? 'text-indigo-500' : 'text-slate-500'">Bank Transfer</span>
+                                    </button>
                                 </div>
 
-                                <section class="space-y-4">
-                                    <div>
-                                        <h2 class="text-xl font-black text-white">Select Payment Method</h2>
-                                        <p class="mt-1 text-sm text-slate-400">Choose a simulated payment channel to complete this order.</p>
-                                    </div>
-
-                                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                                        <button type="button" class="rounded-3xl border p-4 text-left transition hover:-translate-y-1" :class="selectedPaymentMethod === 'qris' ? 'border-cyan-300/60 bg-cyan-300/15 shadow-lg shadow-cyan-500/10' : 'border-white/10 bg-white/5 hover:border-cyan-300/30'" @click="selectPaymentMethod('qris')">
-                                            <span class="text-3xl" aria-hidden="true">📱</span>
-                                            <span class="mt-4 block font-black text-white">QRIS</span>
-                                            <span class="mt-1 block text-xs text-slate-400">Instant scan</span>
-                                        </button>
-
-                                        <button type="button" class="rounded-3xl border p-4 text-left transition hover:-translate-y-1" :class="selectedPaymentMethod === 'virtual_account' ? 'border-fuchsia-300/60 bg-fuchsia-300/15 shadow-lg shadow-fuchsia-500/10' : 'border-white/10 bg-white/5 hover:border-fuchsia-300/30'" @click="selectPaymentMethod('virtual_account')">
-                                            <span class="text-3xl" aria-hidden="true">🏦</span>
-                                            <span class="mt-4 block font-black text-white">Virtual Account</span>
-                                            <span class="mt-1 block text-xs text-slate-400">BCA, Mandiri, BRI</span>
-                                        </button>
-
-                                        <button type="button" class="rounded-3xl border p-4 text-left transition hover:-translate-y-1" :class="selectedPaymentMethod === 'e_wallet' ? 'border-lime-300/60 bg-lime-300/15 shadow-lg shadow-lime-500/10' : 'border-white/10 bg-white/5 hover:border-lime-300/30'" @click="selectPaymentMethod('e_wallet')">
-                                            <span class="text-3xl" aria-hidden="true">💳</span>
-                                            <span class="mt-4 block font-black text-white">E-Wallet</span>
-                                            <span class="mt-1 block text-xs text-slate-400">GoPay, OVO, DANA</span>
-                                        </button>
-                                    </div>
-                                    @error('payment_method')
-                                        <p class="mt-2 text-sm font-bold text-rose-300">{{ $message }}</p>
-                                    @enderror
-                                </section>
-
-                                <section class="space-y-4">
-                                    <div>
-                                        <h2 class="text-xl font-black text-white">Select Payment Option</h2>
-                                        <p class="mt-1 text-sm text-slate-400" x-text="'Choose an option for ' + paymentLabel() + '.'"></p>
-                                    </div>
-
-                                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                        <template x-for="channel in paymentChannels[selectedPaymentMethod]" :key="channel.value">
-                                            <button type="button" class="rounded-3xl border p-4 text-left transition hover:-translate-y-1" :class="selectedPaymentChannel === channel.value ? 'border-cyan-300/60 bg-cyan-300/15 shadow-lg shadow-cyan-500/10' : 'border-white/10 bg-white/5 hover:border-cyan-300/30'" @click="selectedPaymentChannel = channel.value">
-                                                <span class="block font-black text-white" x-text="channel.label"></span>
-                                                <span class="mt-1 block text-xs text-slate-400" x-text="channel.description"></span>
-                                            </button>
-                                        </template>
-                                    </div>
-                                    @error('payment_channel')
-                                        <p class="mt-2 text-sm font-bold text-rose-300">{{ $message }}</p>
-                                    @enderror
-                                </section>
-
-                                <section class="rounded-3xl border border-white/10 bg-slate-950/60 p-5">
-                                    <div class="space-y-3 text-sm">
-                                        <div class="flex justify-between gap-4">
-                                            <p class="text-slate-400">Subtotal</p>
-                                            <p class="font-black text-white" x-text="formatCurrency(subtotal)"></p>
-                                        </div>
-                                        <div class="flex justify-between gap-4">
-                                            <p class="text-slate-400">Platform Fee</p>
-                                            <p class="font-black text-white" x-text="formatCurrency(platformFee)"></p>
-                                        </div>
-                                        <div class="flex justify-between gap-4 border-b border-white/10 pb-3">
-                                            <p class="text-slate-400">Quantity</p>
-                                            <p class="font-black text-white"><span x-text="quantity"></span> ticket(s)</p>
-                                        </div>
-                                        <div class="flex items-end justify-between gap-4 pt-1">
-                                            <p class="text-lg font-black text-white">Grand Total</p>
-                                            <p class="text-3xl font-black text-cyan-200" x-text="formatCurrency(grandTotal)"></p>
-                                        </div>
-                                    </div>
-                                </section>
-
-                                <div class="rounded-3xl border border-blue-300/20 bg-blue-300/10 p-4">
-                                    <p class="text-sm text-blue-100"><strong>ℹ Payment Note:</strong> This is a simulated checkout. Your order will be created immediately and your e-tickets will be generated.</p>
+                                <div class="space-y-3">
+                                    <p class="text-sm font-bold text-slate-900">Select Provider</p>
+                                    <template x-for="channel in paymentChannels[selectedPaymentMethod]" :key="channel.value">
+                                        <label class="flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all"
+                                               :class="selectedPaymentChannel === channel.value ? 'border-indigo-500 bg-white shadow-md' : 'border-slate-100 hover:border-slate-200 bg-slate-50'">
+                                            <div class="relative flex items-center justify-center">
+                                                <input type="radio" name="temp_channel" :value="channel.value" x-model="selectedPaymentChannel" class="peer sr-only">
+                                                <div class="w-6 h-6 rounded-full border-2 border-slate-300 peer-checked:border-indigo-500 peer-checked:bg-indigo-500 transition-all flex items-center justify-center">
+                                                    <div class="w-2.5 h-2.5 rounded-full bg-white scale-0 peer-checked:scale-100 transition-transform"></div>
+                                                </div>
+                                            </div>
+                                            <span class="text-xl" x-text="channel.icon"></span>
+                                            <div class="flex-1">
+                                                <p class="font-bold text-slate-900" x-text="channel.label"></p>
+                                                <p class="text-xs text-slate-500" x-text="channel.description"></p>
+                                            </div>
+                                        </label>
+                                    </template>
                                 </div>
 
-                                <button type="submit" class="neon-button w-full py-4 text-base" x-text="'Pay with ' + paymentDisplayLabel().toUpperCase() + ' (Simulated)'"></button>
-                            </form>
-                        </section>
+                                <div class="flex justify-between items-center mt-10">
+                                    <button type="button" @click="prevStep()" class="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1">
+                                        <span>←</span> Back
+                                    </button>
+                                    <button type="button" @click="nextStep()" class="primary-button group">
+                                        Review Order 
+                                        <span class="inline-block transform group-hover:translate-x-1 transition-transform ml-1">→</span>
+                                    </button>
+                                </div>
+                            </div>
 
-                        <aside class="space-y-6 lg:sticky lg:top-28 lg:self-start">
-                            <section class="neon-card p-6">
-                                <p class="text-xs font-black uppercase tracking-[0.28em] text-fuchsia-200">Payment Summary</p>
-                                <h3 class="mt-2 text-2xl font-black text-white">Order pulse</h3>
+                            <!-- Step 3: Review & Confirm -->
+                            <div x-cloak x-show="step === 3" x-transition.opacity.duration.300ms class="p-8 sm:p-12">
+                                <h2 class="text-3xl font-black text-slate-900 text-center mb-2">Review & Confirm</h2>
+                                <p class="text-slate-500 text-center mb-10">Please review your order details before paying</p>
 
-                                <div class="mt-6 space-y-4 text-sm">
-                                    <div class="flex justify-between gap-4">
-                                        <span class="text-slate-400">Price per ticket</span>
-                                        <span class="font-black text-white">Rp {{ number_format($ticketCategory->price, 0, ',', '.') }}</span>
-                                    </div>
-                                    <div class="flex justify-between gap-4">
-                                        <span class="text-slate-400">Quantity</span>
-                                        <span class="font-black text-white" x-text="quantity"></span>
-                                    </div>
-                                    <div class="flex justify-between gap-4">
-                                        <span class="text-slate-400">Subtotal</span>
-                                        <span class="font-black text-white" x-text="formatCurrency(subtotal)"></span>
-                                    </div>
-                                    <div class="flex justify-between gap-4">
-                                        <span class="text-slate-400">Platform Fee</span>
-                                        <span class="font-black text-white" x-text="formatCurrency(platformFee)"></span>
-                                    </div>
-                                    <div class="flex justify-between gap-4">
-                                        <span class="text-slate-400">Payment</span>
-                                        <span class="max-w-40 text-right font-black text-white" x-text="paymentDisplayLabel()"></span>
-                                    </div>
-                                    <div class="border-t border-white/10 pt-4">
-                                        <div class="flex items-end justify-between gap-4">
-                                            <span class="text-lg font-black text-white">Grand Total</span>
-                                            <span class="text-2xl font-black text-cyan-200" x-text="formatCurrency(grandTotal)"></span>
+                                <div class="bg-slate-50 rounded-3xl p-6 mb-8 border border-slate-200">
+                                    <div class="flex items-center justify-between pb-4 border-b border-dashed border-slate-300">
+                                        <div>
+                                            <p class="font-bold text-slate-900">{{ $event->title }}</p>
+                                            <p class="text-xs text-slate-500">{{ $ticketCategory->name }}</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="font-black text-indigo-600"><span x-text="quantity"></span>x</p>
                                         </div>
                                     </div>
-                                </div>
-                            </section>
+                                    
+                                    <div class="py-4 space-y-3">
+                                        <div class="flex justify-between text-sm">
+                                            <span class="text-slate-500">Subtotal</span>
+                                            <span class="font-bold text-slate-900" x-text="formatCurrency(subtotal)"></span>
+                                        </div>
+                                        <div class="flex justify-between text-sm">
+                                            <span class="text-slate-500">Platform Fee</span>
+                                            <span class="font-bold text-slate-900" x-text="formatCurrency(platformFee)"></span>
+                                        </div>
+                                        <div class="flex justify-between text-sm">
+                                            <span class="text-slate-500">Payment Method</span>
+                                            <span class="font-bold text-indigo-600" x-text="paymentChannelLabel()"></span>
+                                        </div>
+                                    </div>
 
-                            <section class="glass-panel rounded-3xl p-5 text-sm">
-                                <div class="space-y-3 text-slate-300">
-                                    <div class="flex items-start gap-3">
-                                        <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-lime-300 text-xs font-black text-slate-950">✓</span>
-                                        <p><strong class="text-white">Instant delivery</strong> of e-tickets</p>
-                                    </div>
-                                    <div class="flex items-start gap-3">
-                                        <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-cyan-300 text-xs font-black text-slate-950">✓</span>
-                                        <p><strong class="text-white">Unique barcode</strong> for each ticket</p>
-                                    </div>
-                                    <div class="flex items-start gap-3">
-                                        <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-fuchsia-300 text-xs font-black text-slate-950">✓</span>
-                                        <p><strong class="text-white">Non-refundable</strong> tickets</p>
+                                    <div class="pt-4 border-t border-dashed border-slate-300 flex items-end justify-between">
+                                        <span class="text-lg font-black text-slate-900">Total</span>
+                                        <span class="text-3xl font-black text-indigo-600" x-text="formatCurrency(grandTotal)"></span>
                                     </div>
                                 </div>
-                            </section>
-                        </aside>
+
+                                <div class="rounded-2xl border border-blue-200 bg-blue-50 p-4 mb-8 flex gap-3 items-start">
+                                    <svg class="h-5 w-5 text-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <p class="text-xs text-blue-700 leading-relaxed">
+                                        <strong>Simulation Mode:</strong> No real money will be charged. This will create a successful order and generate your digital passes instantly.
+                                    </p>
+                                </div>
+
+                                <div class="flex flex-col-reverse sm:flex-row justify-between items-center mt-10 gap-4 sm:gap-0">
+                                    <button type="button" @click="prevStep()" class="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1 w-full sm:w-auto justify-center">
+                                        <span>←</span> Change Payment
+                                    </button>
+                                    <button type="submit" class="primary-button w-full sm:w-auto relative overflow-hidden group">
+                                        <span class="relative z-10 flex items-center gap-2">
+                                            Pay <span x-text="formatCurrency(grandTotal)"></span>
+                                        </span>
+                                        <div class="absolute inset-0 bg-white/20 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </main>
             </div>
