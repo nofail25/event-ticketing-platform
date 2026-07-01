@@ -25,7 +25,7 @@ class StoreEventRequest extends FormRequest
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'location' => 'required|string|max:255',
-            'start_time' => 'required|date',
+            'start_time' => 'required|date|after:now',
             'end_time' => 'required|date|after_or_equal:start_time',
             'banner_image' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:2048',
         ];

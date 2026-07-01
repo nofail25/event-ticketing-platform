@@ -11,6 +11,8 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
+        'ticket_category_id',
+        'quantity',
         'invoice_number',
         'total_amount',
         'payment_status',
@@ -24,6 +26,7 @@ class Order extends Model
         return [
             'total_amount' => 'decimal:2',
             'platform_fee' => 'decimal:2',
+            'quantity' => 'integer',
         ];
     }
 
@@ -33,6 +36,14 @@ class Order extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * The ticket category for this order.
+     */
+    public function ticketCategory()
+    {
+        return $this->belongsTo(TicketCategory::class);
     }
 
     /**
@@ -56,13 +67,11 @@ class Order extends Model
     public function getPaymentChannelLabelAttribute(): ?string
     {
         return match ($this->payment_channel) {
-            'qris_bca_mobile' => 'BCA Mobile',
-            'qris_gopay' => 'GoPay QRIS',
-            'qris_shopeepay' => 'ShopeePay QRIS',
-            'va_bca' => 'BCA',
-            'va_mandiri' => 'Mandiri',
-            'va_bri' => 'BRI',
-            'va_bni' => 'BNI',
+            'qris_universal' => 'QRIS Universal',
+            'va_bca' => 'BCA Virtual Account',
+            'va_mandiri' => 'Mandiri Virtual Account',
+            'va_bri' => 'BRI Virtual Account',
+            'va_bni' => 'BNI Virtual Account',
             'wallet_dana' => 'DANA',
             'wallet_gopay' => 'GoPay',
             'wallet_ovo' => 'OVO',

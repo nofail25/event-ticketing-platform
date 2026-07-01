@@ -18,8 +18,21 @@ class AdminEventController extends Controller
 
     public function approve(Event $event)
     {
+        // Safety check: ensure organizer is still verified before publishing
+        $organizerProfile = $event->organizer?->organizerProfile;
+        if (!$organizerProfile || $organizerProfile->verification_status !== 'verified') {
+            return back()->with('danger', "Tidak dapat menyetujui event. Profil Organizer \"{$event->organizer?->name}\" belum terverifikasi.");
+        }
+
         $event->update(['status' => 'active']);
 
-        return back()->with('success', "\"{$event->title}\" has been approved and published.");
+        return back()->with('success', "Event \"{$event->title}\" telah disetujui dan dipublikasikan.");
+    }
+
+    public function reject(Event $event)
+    {
+        $event->update(['status' => 'rejected']);
+
+        return back()->with('success', "Event \"{$event->title}\" telah ditolak.");
     }
 }

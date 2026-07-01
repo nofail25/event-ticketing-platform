@@ -12,10 +12,14 @@ class CustomerDashboardController extends Controller
     {
         $user = Auth::user();
 
+        $orderStats = Order::where('user_id', $user->id)
+            ->selectRaw('COUNT(*) as total, SUM(payment_status = "paid") as paid, SUM(payment_status = "pending") as pending')
+            ->first();
+
         $stats = [
-            'total_orders'  => Order::where('user_id', $user->id)->count(),
-            'paid_orders'   => Order::where('user_id', $user->id)->where('payment_status', 'paid')->count(),
-            'pending_orders'=> Order::where('user_id', $user->id)->where('payment_status', 'pending')->count(),
+            'total_orders'  => $orderStats->total ?? 0,
+            'paid_orders'   => $orderStats->paid ?? 0,
+            'pending_orders'=> $orderStats->pending ?? 0,
         ];
 
         // Fetch all orders with their related e-tickets

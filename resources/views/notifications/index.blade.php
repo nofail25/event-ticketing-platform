@@ -3,9 +3,7 @@
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="flex-shrink-0 w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                    </svg>
+                    <span class="material-symbols-outlined text-xl text-white" style="line-height:1;">notifications</span>
                 </div>
                 <div>
                     <h2 class="font-bold text-xl text-gray-800 leading-tight">Notifikasi</h2>
@@ -83,9 +81,7 @@
                             @if($isOrderPaid)
                                 <div class="flex items-start gap-4">
                                     <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-sm">
-                                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                        </svg>
+                                        <span class="material-symbols-outlined text-2xl text-white" style="line-height:1;">check_circle</span>
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center justify-between">
@@ -121,9 +117,7 @@
                             @else
                                 <div class="flex items-start gap-4">
                                     <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
-                                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                        </svg>
+                                        <span class="material-symbols-outlined text-2xl text-white" style="line-height:1;">info</span>
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center justify-between">
@@ -143,9 +137,7 @@
                                 @csrf
                                 @method('PUT')
                                 <button type="submit" title="Tandai sebagai dibaca" class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                    </svg>
+                                    <span class="material-symbols-outlined text-base" style="line-height:1;">check</span>
                                 </button>
                             </form>
                             @endif
@@ -153,18 +145,14 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" title="Hapus" class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                    </svg>
+                                    <span class="material-symbols-outlined text-base" style="line-height:1;">delete</span>
                                 </button>
                             </form>
                         </div>
                     </div>
                 @empty
                     <div class="rounded-lg border border-gray-200 bg-white p-12 text-center">
-                        <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                        </svg>
+                        <span class="material-symbols-outlined w-16 h-16 text-gray-300 mx-auto mb-4" style="line-height:1;">notifications</span>
                         <p class="text-gray-500 text-lg font-medium">Tidak ada notifikasi</p>
                         <p class="text-gray-400 text-sm mt-1">Anda akan menerima notifikasi ketika ada aktivitas penting.</p>
                     </div>

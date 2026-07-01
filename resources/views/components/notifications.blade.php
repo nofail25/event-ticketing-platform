@@ -26,9 +26,7 @@
                 @if($isOrderPaid)
                     <div class="flex items-start gap-3">
                         <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-sm">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
+                            <span class="material-symbols-outlined text-xl text-white" style="line-height:1;">check_circle</span>
                         </div>
                         <div class="flex-1 min-w-0">
                             <h4 class="font-semibold text-gray-900 text-sm">Pembayaran Berhasil</h4>
@@ -55,9 +53,7 @@
                 @else
                     <div class="flex items-start gap-3">
                         <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                            </svg>
+                            <span class="material-symbols-outlined text-xl text-white" style="line-height:1;">notifications</span>
                         </div>
                         <div class="flex-1 min-w-0">
                             <h4 class="font-semibold text-gray-900 text-sm">Notifikasi</h4>
@@ -75,9 +71,7 @@
                     @csrf
                     @method('PUT')
                     <button type="submit" class="text-gray-400 hover:text-gray-600 transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
+                        <span class="material-symbols-outlined text-base" style="line-height:1;">check</span>
                     </button>
                 </form>
             </div>
@@ -95,9 +89,7 @@
 </div>
 @else
 <div class="rounded-lg border border-gray-200 bg-white p-8 text-center">
-    <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-    </svg>
+    <span class="material-symbols-outlined text-5xl text-gray-300 mx-auto mb-3" style="line-height:1;">notifications</span>
     <p class="text-gray-500 text-sm">Tidak ada notifikasi</p>
 </div>
 @endif

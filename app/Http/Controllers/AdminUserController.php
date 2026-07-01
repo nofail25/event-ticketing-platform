@@ -51,6 +51,23 @@ class AdminUserController extends Controller
             'organizer_id' => 'nullable|exists:users,id',
         ]);
 
+        if ($validated['role'] === 'Gate Scanner' && !empty($validated['organizer_id'])) {
+            $organizerUser = User::find($validated['organizer_id']);
+            if (!$organizerUser || !$organizerUser->hasRole('Event Organizer')) {
+                return redirect()->back()->with('danger', 'Pengguna yang dipilih bukan Event Organizer.');
+            }
+        }
+
+        // Prevent assigning Super Admin
+        if ($validated['role'] === 'Super Admin') {
+            return redirect()->back()->with('danger', 'Anda tidak dapat memberikan peran Super Admin kepada pengguna melalui panel ini.');
+        }
+
+        // Prevent changing existing Super Admin role
+        if ($user->hasRole('Super Admin')) {
+            return redirect()->back()->with('danger', 'Peran Super Admin tidak dapat diubah.');
+        }
+
         // Sync the user's role (replaces existing roles)
         $user->syncRoles($validated['role']);
 
@@ -62,6 +79,6 @@ class AdminUserController extends Controller
         }
 
         return redirect()->route('admin.users.index')
-            ->with('success', "User role updated to '{$validated['role']}'.");
+            ->with('success', "Peran pengguna diperbarui menjadi '{$validated['role']}'.");
     }
 }

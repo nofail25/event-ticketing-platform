@@ -9,9 +9,7 @@ class ProcessCheckoutRequest extends FormRequest
 {
     private const PAYMENT_CHANNELS = [
         'qris' => [
-            'qris_bca_mobile',
-            'qris_gopay',
-            'qris_shopeepay',
+            'qris_universal',
         ],
         'virtual_account' => [
             'va_bca',
@@ -59,5 +57,11 @@ class ProcessCheckoutRequest extends FormRequest
                 },
             ],
         ];
+    }
+
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        session()->flash('step', 3);
+        parent::failedValidation($validator);
     }
 }

@@ -2,8 +2,8 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-xl font-bold text-slate-900">Withdrawal Requests</h2>
-                <p class="mt-1 text-sm text-slate-500">Review organizer payout requests and mark transfers as paid.</p>
+                <h2 class="text-xl font-bold text-slate-900">Permintaan Penarikan Dana</h2>
+                <p class="mt-1 text-sm text-slate-500">Tinjau permintaan pencairan penyelenggara dan tandai transfer sebagai dibayar.</p>
             </div>
         </div>
     </x-slot>
@@ -26,12 +26,12 @@
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead>
                         <tr class="bg-slate-50">
-                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Organizer</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Amount</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Bank Details</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Requested</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Penyelenggara</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Jumlah</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Detail Bank</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Diminta</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Status</th>
-                            <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">Action</th>
+                            <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -46,7 +46,7 @@
                             @endphp
                             <tr class="hover:bg-slate-50 transition-colors">
                                 <td class="px-6 py-4">
-                                    <p class="text-sm font-semibold text-slate-900">{{ $withdrawal->user?->name ?? 'Unknown Organizer' }}</p>
+                                    <p class="text-sm font-semibold text-slate-900">{{ $withdrawal->user?->name ?? 'Penyelenggara Tidak Diketahui' }}</p>
                                     <p class="text-xs text-slate-500">{{ $withdrawal->user?->email }}</p>
                                 </td>
                                 <td class="px-6 py-4 text-sm font-semibold text-slate-900">Rp {{ number_format($withdrawal->amount, 0, ',', '.') }}</td>
@@ -65,17 +65,17 @@
                                             @csrf
                                             @method('PATCH')
                                             <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-xs font-semibold uppercase tracking-wider rounded-lg hover:bg-indigo-700 transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                                                Mark as Paid
+                                                Tandai sebagai Dibayar
                                             </button>
                                         </form>
                                     @else
-                                        <span class="text-sm text-slate-400">No action</span>
+                                        <span class="text-sm text-slate-400">Tidak ada aksi</span>
                                     @endif
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-12 text-center text-sm text-slate-500">No withdrawal requests found.</td>
+                                <td colspan="6" class="px-6 py-12 text-center text-sm text-slate-500">Tidak ada permintaan penarikan dana ditemukan.</td>
                             </tr>
                         @endforelse
                     </tbody>

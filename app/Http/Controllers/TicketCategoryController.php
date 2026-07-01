@@ -16,6 +16,9 @@ class TicketCategoryController extends Controller
         if ($event->organizer_id !== auth()->id()) {
             abort(403);
         }
+        if ($event->status === 'completed') {
+            return redirect()->route('organizer.events.show', $event)->with('danger', 'Tidak dapat menambah tiket pada event yang sudah selesai.');
+        }
         return view('organizer.ticket-categories.create', compact('event'));
     }
 
@@ -27,6 +30,9 @@ class TicketCategoryController extends Controller
         if ($event->organizer_id !== auth()->id()) {
             abort(403);
         }
+        if ($event->status === 'completed') {
+            return redirect()->route('organizer.events.show', $event)->with('danger', 'Tidak dapat menambah tiket pada event yang sudah selesai.');
+        }
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -36,7 +42,7 @@ class TicketCategoryController extends Controller
 
         $event->ticketCategories()->create($validated);
 
-        return redirect()->route('organizer.events.show', $event)->with('success', 'Ticket category created successfully.');
+        return redirect()->route('organizer.events.show', $event)->with('success', 'Kategori tiket berhasil dibuat.');
     }
 
     /**
@@ -46,6 +52,9 @@ class TicketCategoryController extends Controller
     {
         if ($event->organizer_id !== auth()->id() || $ticketCategory->event_id !== $event->id) {
             abort(403);
+        }
+        if ($event->status === 'completed') {
+            return redirect()->route('organizer.events.show', $event)->with('danger', 'Tidak dapat mengubah tiket pada event yang sudah selesai.');
         }
 
         return view('organizer.ticket-categories.edit', compact('event', 'ticketCategory'));
@@ -59,6 +68,9 @@ class TicketCategoryController extends Controller
         if ($event->organizer_id !== auth()->id() || $ticketCategory->event_id !== $event->id) {
             abort(403);
         }
+        if ($event->status === 'completed') {
+            return redirect()->route('organizer.events.show', $event)->with('danger', 'Tidak dapat mengubah tiket pada event yang sudah selesai.');
+        }
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -66,9 +78,17 @@ class TicketCategoryController extends Controller
             'quota' => 'required|integer|min:1',
         ]);
 
+        // Prevent reducing quota below paid tickets plus active pending reservations.
+        $activeSoldCount = $ticketCategory->activeSoldCount();
+        if ((int) $validated['quota'] < $activeSoldCount) {
+            return redirect()->back()
+                ->withErrors(['quota' => "Kuota tidak dapat dikurangi di bawah jumlah tiket terjual atau sedang dipesan ({$activeSoldCount} tiket)."])
+                ->withInput();
+        }
+
         $ticketCategory->update($validated);
 
-        return redirect()->route('organizer.events.show', $event)->with('success', 'Ticket category updated successfully.');
+        return redirect()->route('organizer.events.show', $event)->with('success', 'Kategori tiket berhasil diperbarui.');
     }
 
     /**
@@ -79,9 +99,18 @@ class TicketCategoryController extends Controller
         if ($event->organizer_id !== auth()->id() || $ticketCategory->event_id !== $event->id) {
             abort(403);
         }
+        if ($event->status === 'completed') {
+            return redirect()->route('organizer.events.show', $event)->with('danger', 'Tidak dapat menghapus tiket pada event yang sudah selesai.');
+        }
+
+        $hasOrders = \App\Models\Order::where('ticket_category_id', $ticketCategory->id)->exists();
+
+        if ($hasOrders) {
+            return redirect()->route('organizer.events.show', $event)->with('danger', 'Kategori tiket tidak dapat dihapus karena sudah ada pesanan atau tiket yang terjual.');
+        }
 
         $ticketCategory->delete();
 
-        return redirect()->route('organizer.events.show', $event)->with('success', 'Ticket category deleted successfully.');
+        return redirect()->route('organizer.events.show', $event)->with('success', 'Kategori tiket berhasil dihapus.');
     }
 }

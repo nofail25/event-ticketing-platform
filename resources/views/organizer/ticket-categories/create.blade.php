@@ -2,11 +2,11 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <div>
-                <h2 class="text-xl font-bold text-slate-900">Add Ticket Category</h2>
-                <p class="mt-1 text-sm text-slate-500">Add a new ticket type for "{{ $event->title }}".</p>
+                <h2 class="text-xl font-bold text-slate-900">Tambah Kategori Tiket</h2>
+                <p class="mt-1 text-sm text-slate-500">Tambahkan jenis tiket baru untuk "{{ $event->title }}".</p>
             </div>
             <a href="{{ route('organizer.events.show', $event) }}" class="text-sm font-medium text-emerald-600 hover:text-emerald-800">
-                &larr; Back to Event
+                &larr; Kembali ke Event
             </a>
         </div>
     </x-slot>
@@ -17,21 +17,21 @@
                 @csrf
 
                 <div>
-                    <x-input-label for="name" :value="__('Category Name')" />
-                    <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" placeholder="e.g. VIP, General Admission" required autofocus />
+                    <x-input-label for="name" :value="__('Nama Kategori')" />
+                    <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" placeholder="contoh: VIP, Tiket Masuk Umum" required autofocus />
                     <x-input-error :messages="$errors->get('name')" class="mt-2" />
-                    <p class="mt-1 text-sm text-slate-500">Enter a descriptive name for this ticket category.</p>
+                    <p class="mt-1 text-sm text-slate-500">Masukkan nama deskriptif untuk kategori tiket ini.</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <x-input-label for="price" :value="__('Price ($)')" />
+                        <x-input-label for="price" :value="__('Harga (Rp)')" />
                         <x-text-input id="price" class="block mt-1 w-full" type="number" step="0.01" min="0" name="price" :value="old('price')" required />
                         <x-input-error :messages="$errors->get('price')" class="mt-2" />
                     </div>
 
                     <div>
-                        <x-input-label for="quota" :value="__('Quota (Total Tickets)')" />
+                        <x-input-label for="quota" :value="__('Kuota (Total Tiket)')" />
                         <x-text-input id="quota" class="block mt-1 w-full" type="number" min="1" name="quota" :value="old('quota')" required />
                         <x-input-error :messages="$errors->get('quota')" class="mt-2" />
                     </div>
@@ -39,11 +39,11 @@
 
                 <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
                     <a href="{{ route('organizer.events.show', $event) }}" class="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50 transition">
-                        Cancel
+                        Batal
                     </a>
                     <button type="submit" class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 transition focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
-                        <svg class="w-4 h-4 me-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                        Add Ticket Category
+                        <span class="material-symbols-outlined text-base me-2" style="line-height:1;">save</span>
+                        Simpan Kategori
                     </button>
                 </div>
             </form>

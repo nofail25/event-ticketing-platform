@@ -84,4 +84,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(User::class, 'organizer_id');
     }
+
+    public function organizerProfile()
+    {
+        return $this->hasOne(OrganizerProfile::class);
+    }
 }

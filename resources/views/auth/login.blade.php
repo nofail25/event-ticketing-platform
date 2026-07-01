@@ -5,17 +5,17 @@
         @csrf
 
         <div>
-            <x-input-label for="email" :value="__('Email')" class="text-xs font-black uppercase tracking-[0.28em] text-cyan-200" />
-            <x-text-input id="email" class="block mt-1 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-300/30" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+            <x-input-label for="email" :value="__('Email')" class="text-xs font-bold uppercase tracking-wider text-slate-500" />
+            <x-text-input id="email" class="block mt-1 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
         <div>
-            <x-input-label for="password" :value="__('Password')" class="text-xs font-black uppercase tracking-[0.28em] text-fuchsia-200" />
+            <x-input-label for="password" :value="__('Password')" class="text-xs font-bold uppercase tracking-wider text-slate-500" />
 
             <x-text-input
                 id="password"
-                class="block mt-1 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-100 focus:outline-none focus:ring-2 focus:ring-fuchsia-300/30"
+                class="block mt-1 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
                 type="password"
                 name="password"
                 required
@@ -26,27 +26,27 @@
         </div>
 
         <div class="flex items-center justify-between pt-1">
-            <label for="remember_me" class="inline-flex items-center gap-2 text-sm text-slate-300">
-                <input id="remember_me" type="checkbox" class="h-4 w-4 rounded border-white/20 bg-white/5 text-cyan-300/60 focus:ring-cyan-300/30" name="remember">
+            <label for="remember_me" class="inline-flex items-center gap-2 text-sm text-slate-600">
+                <input id="remember_me" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" name="remember">
                 <span>{{ __('Remember me') }}</span>
             </label>
 
             @if (Route::has('password.request'))
-                <a class="text-sm font-black text-slate-300 hover:text-white underline decoration-white/20 hover:decoration-white/50"
+                <a class="text-sm font-bold text-slate-500 hover:text-indigo-600 transition-colors"
                     href="{{ route('password.request') }}">
                     {{ __('Forgot your password?') }}
                 </a>
             @endif
         </div>
 
-        <div class="pt-2 space-y-3">
-            <x-primary-button class="w-full rounded-2xl px-6 py-3 text-sm font-black uppercase tracking-wide">
+        <div class="pt-4 space-y-4">
+            <button type="submit" class="w-full flex items-center justify-center bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 rounded-xl px-6 py-3 text-sm font-bold uppercase tracking-wide transition-colors shadow-lg shadow-indigo-500/30">
                 {{ __('Log in') }}
-            </x-primary-button>
+            </button>
 
             <div class="text-center text-sm font-semibold text-slate-500">
                 {{ __("Don't have an account?") }}
-                <a href="{{ route('register') }}" class="font-black text-cyan-200 hover:underline decoration-white/20">
+                <a href="{{ route('register') }}" class="font-bold text-indigo-600 hover:text-indigo-700 hover:underline">
                     {{ __('Register') }}
                 </a>
             </div>

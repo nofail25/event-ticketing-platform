@@ -26,19 +26,23 @@ class WithdrawalController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('organizer.withdrawals.index', compact('wallet', 'withdrawals'));
+        $profile = $request->user()->organizerProfile;
+
+        return view('organizer.withdrawals.index', compact('wallet', 'withdrawals', 'profile'));
     }
 
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'amount' => ['required', 'numeric', 'min:1', 'decimal:0,2'],
-            'bank_name' => ['required', 'string', 'max:100'],
-            'account_number' => ['required', 'string', 'max:50'],
-            'account_holder' => ['required', 'string', 'max:100'],
         ]);
 
-        DB::transaction(function () use ($request, $validated) {
+        $profile = $request->user()->organizerProfile;
+        if (!$profile || $profile->verification_status !== 'verified') {
+            return back()->withErrors(['amount' => 'Profil Anda belum terverifikasi atau data rekening bank tidak ditemukan.']);
+        }
+
+        DB::transaction(function () use ($request, $validated, $profile) {
             $organizer = User::query()
                 ->whereKey($request->user()->id)
                 ->lockForUpdate()
@@ -58,14 +62,14 @@ class WithdrawalController extends Controller
                 'amount' => $amount,
                 'status' => 'pending',
                 'bank_info' => [
-                    'bank_name' => $validated['bank_name'],
-                    'account_number' => $validated['account_number'],
-                    'account_holder' => $validated['account_holder'],
+                    'bank_name' => $profile->bank_name,
+                    'account_number' => $profile->account_number,
+                    'account_holder' => $profile->account_holder,
                 ],
             ]);
         });
 
-        return back()->with('status', 'Withdrawal request submitted for admin approval.');
+        return back()->with('status', 'Permintaan penarikan dana diajukan untuk persetujuan admin.');
     }
 
     public function index(): View
@@ -97,6 +101,6 @@ class WithdrawalController extends Controller
             ]);
         });
 
-        return back()->with('status', 'Withdrawal marked as paid.');
+        return back()->with('status', 'Penarikan dana ditandai sebagai dibayar.');
     }
 }

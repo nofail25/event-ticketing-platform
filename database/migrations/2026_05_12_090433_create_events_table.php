@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('location');
             $table->dateTime('start_time');
             $table->dateTime('end_time');
-            $table->enum('status', ['draft', 'pending', 'active', 'completed'])->default('draft');
+            $table->enum('status', ['draft', 'pending', 'active', 'completed', 'rejected'])->default('draft');
             $table->timestamps();
         });
     }

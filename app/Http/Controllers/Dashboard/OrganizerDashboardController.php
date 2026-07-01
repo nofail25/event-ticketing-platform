@@ -18,11 +18,15 @@ class OrganizerDashboardController extends Controller
     {
         $organizerId = Auth::id();
 
+        $eventStats = Event::where('organizer_id', $organizerId)
+            ->selectRaw('COUNT(*) as total, SUM(status = "active") as active, SUM(status = "pending") as pending, SUM(status = "draft") as draft')
+            ->first();
+
         $stats = [
-            'total_events'    => Event::where('organizer_id', $organizerId)->count(),
-            'active_events'   => Event::where('organizer_id', $organizerId)->where('status', 'active')->count(),
-            'pending_events'  => Event::where('organizer_id', $organizerId)->where('status', 'pending')->count(),
-            'draft_events'    => Event::where('organizer_id', $organizerId)->where('status', 'draft')->count(),
+            'total_events'    => $eventStats->total ?? 0,
+            'active_events'   => $eventStats->active ?? 0,
+            'pending_events'  => $eventStats->pending ?? 0,
+            'draft_events'    => $eventStats->draft ?? 0,
         ];
 
         $wallet = $this->balanceService->summaryFor($organizerId);
@@ -38,6 +42,8 @@ class OrganizerDashboardController extends Controller
             ->take(5)
             ->get();
 
-        return view('organizer.dashboard', compact('stats', 'wallet', 'recentWithdrawals', 'recentEvents'));
+        $profile = Auth::user()->organizerProfile;
+
+        return view('organizer.dashboard', compact('stats', 'wallet', 'recentWithdrawals', 'recentEvents', 'profile'));
     }
 }

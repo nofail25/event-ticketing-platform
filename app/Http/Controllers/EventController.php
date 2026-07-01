@@ -17,7 +17,8 @@ class EventController extends Controller
     public function index()
     {
         $events = Event::where('organizer_id', Auth::id())->latest()->paginate(10);
-        return view('organizer.events.index', compact('events'));
+        $profile = Auth::user()->organizerProfile;
+        return view('organizer.events.index', compact('events', 'profile'));
     }
 
     /**
@@ -25,6 +26,11 @@ class EventController extends Controller
      */
     public function create()
     {
+        $profile = Auth::user()->organizerProfile;
+        if (!$profile || $profile->verification_status !== 'verified') {
+            return redirect()->route('profile.edit')->with('error', 'Anda harus melengkapi profil dan diverifikasi oleh admin sebelum dapat membuat event.');
+        }
+
         return view('organizer.events.create');
     }
 
@@ -33,6 +39,11 @@ class EventController extends Controller
      */
     public function store(StoreEventRequest $request)
     {
+        $profile = Auth::user()->organizerProfile;
+        if (!$profile || $profile->verification_status !== 'verified') {
+            return redirect()->route('profile.edit')->with('error', 'Anda harus melengkapi profil dan diverifikasi oleh admin sebelum dapat membuat event.');
+        }
+
         $validated = $request->validated();
 
         if ($request->hasFile('banner_image')) {
@@ -44,7 +55,7 @@ class EventController extends Controller
 
         Event::create($validated);
 
-        return redirect()->route('organizer.events.index')->with('success', 'Event created and submitted for admin approval.');
+        return redirect()->route('organizer.events.index')->with('success', 'Event berhasil dibuat dan diajukan untuk persetujuan admin.');
     }
 
     /**
@@ -92,13 +103,13 @@ class EventController extends Controller
             $validated['banner_image'] = $request->file('banner_image')->store('banners', 'public');
         }
 
-        if ($event->status === 'active') {
-            $validated['status'] = 'pending';
+        if (in_array($event->status, ['active', 'rejected'])) {
+            $validated['status'] = 'pending'; // BUG-09 FIX: rejected events re-enter review queue when edited
         }
 
         $event->update($validated);
 
-        return redirect()->route('organizer.events.index')->with('success', 'Event updated successfully. Active events are sent back for admin approval after edits.');
+        return redirect()->route('organizer.events.index')->with('success', 'Event berhasil diperbarui. Event aktif dikembalikan untuk persetujuan admin setelah diedit.');
     }
 
     /**
@@ -110,12 +121,22 @@ class EventController extends Controller
             abort(403);
         }
 
+        // BUG-18 REFIX: Block deletion if there are ANY orders (including pending/failed) 
+        // to prevent orphaned orders from causing SQL constraint errors on payment attempts.
+        $hasOrders = \App\Models\Order::whereHas('ticketCategory', function ($q) use ($event) {
+            $q->where('event_id', $event->id);
+        })->exists();
+
+        if ($hasOrders) {
+            return redirect()->route('organizer.events.index')->with('danger', 'Event tidak dapat dihapus karena sudah ada pesanan atau tiket yang terjual.');
+        }
+
         if ($event->banner_image) {
             Storage::disk('public')->delete($event->banner_image);
         }
 
         $event->delete();
 
-        return redirect()->route('organizer.events.index')->with('success', 'Event deleted successfully.');
+        return redirect()->route('organizer.events.index')->with('success', 'Event berhasil dihapus.');
     }
 }

@@ -11,17 +11,49 @@ class OrganizerBalanceService
 
     public function summaryFor(int $organizerId): array
     {
-        $grossRevenue = $this->grossRevenueFor($organizerId);
-        $platformFee = round($grossRevenue * (self::PLATFORM_FEE_PERCENTAGE / 100), 2);
-        $netRevenue = max(round($grossRevenue - $platformFee, 2), 0);
+        // Calculate total gross and fee directly from orders table
+        $totalGross = (float) Order::query()
+            ->join('ticket_categories', 'orders.ticket_category_id', '=', 'ticket_categories.id')
+            ->join('events', 'ticket_categories.event_id', '=', 'events.id')
+            ->where('events.organizer_id', $organizerId)
+            ->where('orders.payment_status', 'paid')
+            ->sum('orders.total_amount');
+
+        $totalFee = (float) Order::query()
+            ->join('ticket_categories', 'orders.ticket_category_id', '=', 'ticket_categories.id')
+            ->join('events', 'ticket_categories.event_id', '=', 'events.id')
+            ->where('events.organizer_id', $organizerId)
+            ->where('orders.payment_status', 'paid')
+            ->sum('orders.platform_fee');
+        
+        $withdrawableGross = (float) Order::query()
+            ->join('ticket_categories', 'orders.ticket_category_id', '=', 'ticket_categories.id')
+            ->join('events', 'ticket_categories.event_id', '=', 'events.id')
+            ->where('events.organizer_id', $organizerId)
+            ->where('orders.payment_status', 'paid')
+            ->where('events.end_time', '<=', now())
+            ->sum('orders.total_amount');
+
+        $withdrawableFee = (float) Order::query()
+            ->join('ticket_categories', 'orders.ticket_category_id', '=', 'ticket_categories.id')
+            ->join('events', 'ticket_categories.event_id', '=', 'events.id')
+            ->where('events.organizer_id', $organizerId)
+            ->where('orders.payment_status', 'paid')
+            ->where('events.end_time', '<=', now())
+            ->sum('orders.platform_fee');
+            
+        $withdrawableNet = max(round($withdrawableGross - $withdrawableFee, 2), 0);
+
         $reservedWithdrawals = $this->reservedWithdrawalsFor($organizerId);
-        $currentBalance = max(round($netRevenue - $reservedWithdrawals, 2), 0);
+        
+        $currentBalance = max(round($withdrawableNet - $reservedWithdrawals, 2), 0);
 
         return [
-            'gross_revenue' => $grossRevenue,
+            'gross_revenue' => $totalGross,
+            'withdrawable_gross' => $withdrawableGross,
             'platform_fee_percentage' => self::PLATFORM_FEE_PERCENTAGE,
-            'platform_fee_amount' => $platformFee,
-            'net_revenue' => $netRevenue,
+            'platform_fee_amount' => $totalFee,
+            'withdrawable_fee_amount' => $withdrawableFee,
             'reserved_withdrawals' => $reservedWithdrawals,
             'current_balance' => $currentBalance,
         ];
@@ -32,22 +64,11 @@ class OrganizerBalanceService
         return $this->summaryFor($organizerId)['current_balance'];
     }
 
-    private function grossRevenueFor(int $organizerId): float
-    {
-        return (float) Order::query()
-            ->join('ticket_details', 'orders.id', '=', 'ticket_details.order_id')
-            ->join('ticket_categories', 'ticket_details.ticket_category_id', '=', 'ticket_categories.id')
-            ->join('events', 'ticket_categories.event_id', '=', 'events.id')
-            ->where('events.organizer_id', $organizerId)
-            ->where('orders.payment_status', 'paid')
-            ->sum('ticket_categories.price');
-    }
-
     private function reservedWithdrawalsFor(int $organizerId): float
     {
         return (float) Withdrawal::query()
             ->where('user_id', $organizerId)
-            ->whereIn('status', ['pending', 'completed'])
+            ->whereIn('status', ['pending', 'completed']) // 'pending' and 'completed' withdrawals MUST be subtracted from the lifetime gross.
             ->sum('amount');
     }
 }

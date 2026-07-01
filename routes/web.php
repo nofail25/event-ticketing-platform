@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AdminEventController;
 use App\Http\Controllers\AdminOrderController;
+use App\Http\Controllers\AdminOrganizerController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AdminRoleController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\OrganizerProfileController;
 use App\Http\Controllers\TicketCategoryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CheckoutController;
@@ -26,6 +28,7 @@ use App\Http\Controllers\NotificationController;
 */
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/events/{event}', [HomeController::class, 'show'])->name('events.show');
+Route::get('/api/search-events', [HomeController::class, 'searchSuggestions'])->name('api.search.events');
 
 /*
 |--------------------------------------------------------------------------
@@ -44,6 +47,8 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
         return redirect()->route('organizer.dashboard');
     } elseif ($user->hasRole('Gate Scanner')) {
         return redirect()->route('gate.dashboard');
+    } elseif ($user->hasRole('Customer')) {
+        return redirect()->route('customer.dashboard');
     } else {
         return redirect()->route('home');
     }
@@ -62,8 +67,11 @@ Route::middleware(['auth', 'verified', 'role:Super Admin'])
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
         Route::get('/users/{user}/edit', [AdminUserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
+        Route::get('/organizers', [AdminOrganizerController::class, 'index'])->name('organizers.index');
+        Route::post('/organizers/{profile}/verify', [AdminOrganizerController::class, 'verify'])->name('organizers.verify');
         Route::get('/events', [AdminEventController::class, 'index'])->name('events.index');
         Route::patch('/events/{event}/approve', [AdminEventController::class, 'approve'])->name('events.approve');
+        Route::patch('/events/{event}/reject', [AdminEventController::class, 'reject'])->name('events.reject');
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('/withdrawals', [WithdrawalController::class, 'index'])->name('withdrawals.index');
         Route::patch('/withdrawals/{withdrawal}/complete', [WithdrawalController::class, 'complete'])->name('withdrawals.complete');
@@ -80,10 +88,12 @@ Route::middleware(['auth', 'verified', 'role:Event Organizer'])
     ->name('organizer.')
     ->group(function () {
         Route::get('/dashboard', [OrganizerDashboardController::class, 'index'])->name('dashboard');
+        Route::put('/profile', [OrganizerProfileController::class, 'update'])->name('profile.update');
         Route::get('/withdrawals', [WithdrawalController::class, 'organizerIndex'])->name('withdrawals.index');
         Route::post('/withdrawals', [WithdrawalController::class, 'store'])->name('withdrawals.store');
         Route::resource('events', EventController::class);
         Route::resource('events.ticket-categories', TicketCategoryController::class)->except(['index', 'show']);
+        Route::resource('scanners', \App\Http\Controllers\Organizer\GateScannerController::class)->except(['show', 'edit', 'update']);
     });
 
 /*
@@ -107,6 +117,8 @@ Route::middleware(['auth', 'verified', 'role:Customer'])
     ->group(function () {
         Route::get('/checkout/{ticketCategory}', [CheckoutController::class, 'create'])->name('checkout.create');
         Route::post('/checkout/process', [CheckoutController::class, 'store'])->name('checkout.store');
+        Route::get('/checkout/{order}/payment', [CheckoutController::class, 'payment'])->name('checkout.payment');
+        Route::post('/checkout/{order}/pay', [CheckoutController::class, 'pay'])->name('checkout.pay');
     });
 
 /*

@@ -46,7 +46,7 @@ class AdminRoleController extends Controller
         Role::create($validated);
 
         return redirect()->route('admin.roles.index')
-            ->with('success', 'Role created successfully.');
+            ->with('success', 'Peran berhasil dibuat.');
     }
 
     /**
@@ -57,7 +57,7 @@ class AdminRoleController extends Controller
         // Prevent editing core roles
         if (in_array($role->name, $this->coreRoles)) {
             return redirect()->route('admin.roles.index')
-                ->with('danger', 'Core roles cannot be edited.');
+                ->with('danger', 'Peran inti tidak dapat diedit.');
         }
 
         return view('admin.roles.edit', compact('role'));
@@ -71,7 +71,7 @@ class AdminRoleController extends Controller
         // Safety guard: prevent modifying core roles
         if (in_array($role->name, $this->coreRoles)) {
             return redirect()->route('admin.roles.index')
-                ->with('danger', 'Core roles cannot be modified.');
+                ->with('danger', 'Peran inti tidak dapat dimodifikasi.');
         }
 
         $validated = $request->validate([
@@ -83,7 +83,7 @@ class AdminRoleController extends Controller
         $role->update($validated);
 
         return redirect()->route('admin.roles.index')
-            ->with('success', 'Role updated successfully.');
+            ->with('success', 'Peran berhasil diperbarui.');
     }
 
     /**
@@ -94,18 +94,18 @@ class AdminRoleController extends Controller
         // Safety guard: prevent deleting core roles
         if (in_array($role->name, $this->coreRoles)) {
             return redirect()->route('admin.roles.index')
-                ->with('danger', 'Core roles cannot be deleted.');
+                ->with('danger', 'Peran inti tidak dapat dihapus.');
         }
 
         // Optional: Check if role is assigned to any users
         if ($role->users()->exists()) {
             return redirect()->route('admin.roles.index')
-                ->with('warning', 'This role is assigned to users and cannot be deleted.');
+                ->with('warning', 'Peran ini ditugaskan kepada pengguna dan tidak dapat dihapus.');
         }
 
         $role->delete();
 
         return redirect()->route('admin.roles.index')
-            ->with('success', 'Role deleted successfully.');
+            ->with('success', 'Peran berhasil dihapus.');
     }
 }
